@@ -50,6 +50,7 @@ import gdxforConnectionIconURL from './gdxfor/gdxfor-illustration.svg';
 import gdxforConnectionSmallIconURL from './gdxfor/gdxfor-small.svg';
 
 import twIcon from './tw/tw.svg';
+import serverIcon from './server/server.svg';
 import customExtensionIcon from './custom/custom.svg';
 import returnIcon from './custom/return.svg';
 import galleryIcon from './gallery/gallery.svg';
@@ -380,6 +381,22 @@ export default [
         ),
         tags: ['tw'],
         incompatibleWithScratch: true,
+        featured: true
+    },
+    {
+        name: 'Web Server',
+        extensionId: 'server',
+        collaborator: 'LibreKitten',
+        iconURL: serverIcon,
+        description: (
+            <FormattedMessage
+                defaultMessage="Build a web server that can host an API and simple websites."
+                description="Description for the 'Web Server' extension"
+                id="astro.extension.server.description"
+            />
+        ),
+        incompatibleWithScratch: true,
+        tags: ['tw'],
         featured: true
     },
     {

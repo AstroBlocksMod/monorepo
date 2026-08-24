@@ -26,7 +26,9 @@ const defaultBuiltinExtensions = {
     boost: () => require('../extensions/scratch3_boost'),
     gdxfor: () => require('../extensions/scratch3_gdx_for'),
     // tw: core extension
-    tw: () => require('../extensions/tw')
+    tw: () => require('../extensions/tw'),
+    // astro: Web server blocks.
+    server: () => require('../extensions/astro_server')
 };
 
 /**

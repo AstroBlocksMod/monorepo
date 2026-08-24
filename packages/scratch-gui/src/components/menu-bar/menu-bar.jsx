@@ -97,6 +97,7 @@ import addonsIcon from './addons.svg';
 import errorIcon from './tw-error.svg';
 import advancedIcon from './tw-advanced.svg';
 
+import objectiveScratchLogo from './objective-scratch-logo.svg';
 import ninetiesLogo from './nineties_logo.svg';
 import catLogo from './cat_logo.svg';
 import prehistoricLogo from './prehistoric-logo.svg';
@@ -324,7 +325,7 @@ class MenuBar extends React.Component {
             } else if (mode === '220022BC') {
                 document.getElementById('logo_img').src = prehistoricLogo;
             } else {
-                document.getElementById('logo_img').src = this.props.logo;
+                document.getElementById('logo_img').src = this.props.logo || objectiveScratchLogo;
             }
 
             this.props.onSetTimeTravelMode(mode);
@@ -491,6 +492,18 @@ class MenuBar extends React.Component {
                 )}
             >
                 <div className={styles.mainMenu}>
+                    <div className={styles.logoWrapper}>
+                        <img
+                            alt={APP_NAME}
+                            className={classNames(styles.scratchLogo, {
+                                [styles.clickable]: typeof this.props.onClickLogo !== 'undefined'
+                            })}
+                            draggable={false}
+                            id="logo_img"
+                            src={this.props.logo || objectiveScratchLogo}
+                            onClick={this.props.onClickLogo}
+                        />
+                    </div>
                     <div className={styles.fileGroup}>
                         {this.props.errors.length > 0 && <div>
                             <MenuLabel
@@ -1094,6 +1107,7 @@ MenuBar.propTypes = {
     isTotallyNormal: PropTypes.bool,
     isUpdating: PropTypes.bool,
     locale: PropTypes.string.isRequired,
+    logo: PropTypes.string,
     loginMenuOpen: PropTypes.bool,
     mode1920: PropTypes.bool,
     mode1990: PropTypes.bool,
@@ -1112,6 +1126,7 @@ MenuBar.propTypes = {
     ]),
     onClickAccount: PropTypes.func,
     onClickAddonSettings: PropTypes.func,
+    onClickLogo: PropTypes.func,
     onClickDesktopSettings: PropTypes.func,
     onClickPackager: PropTypes.func,
     onClickRestorePoints: PropTypes.func,

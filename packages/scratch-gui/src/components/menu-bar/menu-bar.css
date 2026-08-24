@@ -45,8 +45,14 @@
 .inactive {
     opacity: 0;
 }
+.logo-wrapper {
+    display: flex;
+    align-items: center;
+    padding: 0 0.25rem;
+}
+
 .scratch-logo {
-    height:  1.6rem;
+    height: 2rem;
     vertical-align: middle;
 }
 

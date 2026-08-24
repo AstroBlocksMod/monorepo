@@ -9176,6 +9176,40 @@
         "blocks": {}
     },
     {
+        "name": "Objective Rocket",
+        "tags": [
+            "fantasy",
+            "space",
+            "rocket",
+            "transportation"
+        ],
+        "isStage": false,
+        "variables": {},
+        "costumes": [
+            {
+                "assetId": "2bb92959b1b8c6d45a7585ee3240a354",
+                "name": "rocket",
+                "bitmapResolution": 1,
+                "md5ext": "2bb92959b1b8c6d45a7585ee3240a354.svg",
+                "dataFormat": "svg",
+                "rotationCenterX": 55.00056,
+                "rotationCenterY": 55.228875
+            }
+        ],
+        "sounds": [
+            {
+                "assetId": "83a9787d4cb6f3b7632b4ddfebf74367",
+                "name": "pop",
+                "dataFormat": "wav",
+                "format": "",
+                "rate": 44100,
+                "sampleCount": 1032,
+                "md5ext": "83a9787d4cb6f3b7632b4ddfebf74367.wav"
+            }
+        ],
+        "blocks": {}
+    },
+    {
         "name": "Octopus",
         "tags": [
             "animals",
@@ -10026,7 +10060,7 @@
         "name": "Prince",
         "tags": [
             "people",
-            "☥",
+            "\u2625",
             "fantasy"
         ],
         "isStage": false,

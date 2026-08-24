@@ -1,5 +1,6 @@
 import {defineMessages} from 'react-intl';
 import sharedMessages from '../shared-messages';
+import {rocketCostume} from '../rocket-costume';
 
 let messages = defineMessages({
     variable: {
@@ -59,15 +60,7 @@ const projectData = translateFunction => {
                 comments: {},
                 currentCostume: 0,
                 costumes: [
-                    {
-                        assetId: '927d672925e7b99f7813735c484c6922',
-                        name: translator(messages.costume, {index: 1}),
-                        bitmapResolution: 1,
-                        md5ext: '927d672925e7b99f7813735c484c6922.svg',
-                        dataFormat: 'svg',
-                        rotationCenterX: 30.74937882782359,
-                        rotationCenterY: 58.864768144346826
-                    }
+                    rocketCostume(translator(messages.costume, {index: 1}))
                 ],
                 sounds: [],
                 volume: 100,

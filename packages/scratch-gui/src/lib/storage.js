@@ -1,6 +1,8 @@
 import ScratchStorage from '@turbowarp/scratch-storage';
 
 import defaultProject from './default-project';
+import {rocketAsset} from './rocket-costume';
+import {TextEncoder} from './tw-text-encoder';
 
 /**
  * Wrapper for ScratchStorage which adds default web sources.
@@ -10,6 +12,21 @@ class Storage extends ScratchStorage {
     constructor () {
         super();
         this.cacheDefaultProject();
+        this.cacheBuiltinAssets();
+    }
+    /**
+     * Store assets that are bundled with the app rather than fetched from the asset host.
+     * The rocket is also a default project asset, but the default project can be replaced at
+     * build time, and the sprite library needs it regardless.
+     */
+    cacheBuiltinAssets () {
+        const rocket = rocketAsset();
+        this.builtinHelper._store(
+            this.AssetType[rocket.assetType],
+            this.DataFormat[rocket.dataFormat],
+            new TextEncoder().encode(rocket.data),
+            rocket.id
+        );
     }
     addOfficialScratchWebStores () {
         this.addWebStore(

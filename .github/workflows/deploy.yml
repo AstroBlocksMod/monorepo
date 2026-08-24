@@ -43,10 +43,11 @@ jobs:
         run: pnpm --filter "scratch-gui..." run build
         env:
           NODE_ENV: production
-          # A project page is served from https://<owner>.github.io/<repo>/, so every
-          # asset URL needs that prefix. For a user/org page or a custom domain,
-          # change this to "/".
-          ROOT: /${{ github.event.repository.name }}/
+          # The site is served from the root of the custom domain
+          # (objscratch.hermits.cc), so asset URLs get no path prefix. If this is
+          # ever published as a project page instead, change this back to
+          # "/${{ github.event.repository.name }}/".
+          ROOT: /
           # webpack 4 on a full scratch-gui production build runs past the default heap.
           NODE_OPTIONS: --max-old-space-size=6144
 

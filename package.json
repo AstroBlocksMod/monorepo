@@ -6,6 +6,7 @@
     "build": "pnpm -r run build",
     "test": "pnpm -r run test",
     "lint": "pnpm -r run lint",
-    "start": "pnpm --filter scratch-gui run start"
+    "start": "pnpm --filter scratch-gui run start",
+    "server": "pnpm --filter scratch-vm run server"
   }
 }

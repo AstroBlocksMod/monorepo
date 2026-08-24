@@ -1,0 +1,70 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# One Pages deployment at a time. Don't cancel a run that is already publishing,
+# or the site can be left pointing at a half-uploaded artifact.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        # Version comes from "packageManager" in the root package.json.
+        uses: pnpm/action-setup@v6
+
+      - name: Install Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build editor
+        # "scratch-gui..." is scratch-gui plus its workspace dependencies, built in
+        # topological order. scratch-blocks and scratch-storage are consumed from
+        # their dist/ output, so they have to be built before the GUI bundles.
+        run: pnpm --filter "scratch-gui..." run build
+        env:
+          NODE_ENV: production
+          # A project page is served from https://<owner>.github.io/<repo>/, so every
+          # asset URL needs that prefix. For a user/org page or a custom domain,
+          # change this to "/".
+          ROOT: /${{ github.event.repository.name }}/
+          # webpack 4 on a full scratch-gui production build runs past the default heap.
+          NODE_OPTIONS: --max-old-space-size=6144
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: packages/scratch-gui/build
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

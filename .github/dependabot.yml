@@ -1,0 +1,37 @@
+version: 2
+updates:
+  # Keep the workflows in .github/workflows current.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      actions:
+        patterns: ["*"]
+
+  # One pnpm lockfile covers the whole workspace, so a single "/" entry sees every
+  # package. Upstream ran this daily and allow-listed only first-party scratch-*
+  # packages; those are workspace links here, so Dependabot cannot bump them and
+  # they are ignored below.
+  #
+  # Deliberately weekly, grouped, and capped: these packages are pinned to a
+  # webpack-4-era toolchain (see pnpm-workspace.yaml), so unattended major bumps
+  # are more likely to break the build than to fix anything.
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    groups:
+      minor-and-patch:
+        update-types: ["minor", "patch"]
+    ignore:
+      # Workspace packages — versioned in this repo, not by Dependabot.
+      - dependency-name: "scratch-blocks"
+      - dependency-name: "scratch-paint"
+      - dependency-name: "scratch-render"
+      - dependency-name: "scratch-vm"
+      - dependency-name: "@turbowarp/scratch-storage"
+      # Pinned on purpose; see the comments in pnpm-workspace.yaml.
+      - dependency-name: "webpack"
+      - dependency-name: "cheerio"

@@ -1,3 +1,7 @@
+### Affected Package
+
+_Which package is this about? e.g. scratch-gui, scratch-vm, scratch-blocks_
+
 ### Expected Behavior
 
 _Please describe what should happen_
@@ -12,4 +16,4 @@ _Explain what someone needs to do in order to see what's described in *Actual be
 
 ### Operating System and Browser
 
-_e.g. Mac OS 10.11.6 Safari 10.0_
+_e.g. macOS 15.1, Chrome 131_

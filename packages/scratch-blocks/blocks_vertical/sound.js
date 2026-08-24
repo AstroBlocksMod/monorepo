@@ -244,3 +244,27 @@ Blockly.Blocks['sound_volume'] = {
     });
   }
 };
+
+Blockly.Blocks['sound_importsound'] = {
+  /**
+   * Block for adding a sound loaded from a URL.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SOUND_IMPORTSOUND,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "URL"
+        },
+        {
+          "type": "input_value",
+          "name": "NAME"
+        }
+      ],
+      "category": Blockly.Categories.sound,
+      "extensions": ["colours_sounds", "shape_statement"]
+    });
+  }
+};

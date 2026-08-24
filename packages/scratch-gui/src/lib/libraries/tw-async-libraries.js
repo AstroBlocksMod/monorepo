@@ -1,3 +1,13 @@
+import {RUBBLE_ASSET_ID, rubbleURL} from '../rubble-costume';
+
+// Rubble is bundled with the app instead of living on the asset host, so the library
+// needs a local URL for its thumbnail. Everything else about it is in sprites.json.
+const attachRubbleThumbnail = sprites => sprites.map(sprite => (
+    sprite.costumes && sprite.costumes[0].assetId === RUBBLE_ASSET_ID ?
+        {...sprite, rawURL: rubbleURL} :
+        sprite
+));
+
 const asyncLibrary = callback => {
     let data = null;
     return () => {
@@ -18,4 +28,5 @@ export const getSoundLibrary = asyncLibrary(
 );
 export const getSpriteLibrary = asyncLibrary(
     () => import(/* webpackChunkName: "library-sprites" */ './sprites.json')
+        .then(mod => ({default: attachRubbleThumbnail(mod.default)}))
 );

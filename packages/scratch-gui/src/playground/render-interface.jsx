@@ -57,9 +57,9 @@ const handleClickAddonSettings = addonId => {
 
 const messages = defineMessages({
     defaultTitle: {
-        defaultMessage: 'Run Scratch projects faster',
+        defaultMessage: 'Block-based programming to the stars!',
         description: 'Title of homepage',
-        id: 'tw.guiDefaultTitle'
+        id: 'ab.guiDefaultTitle'
     }
 });
 
@@ -159,14 +159,14 @@ const Footer = () => (
                     </a>
                 </div>
                 <div className={styles.footerSection}>
-                    <a href="https://scratch.mit.edu/users/GarboMuffin/#comments">
+                    <a href="https://github.com/orgs/AstroBlocksMod/discussions">
                         <FormattedMessage
                             defaultMessage="Feedback & Bugs"
                             description="Link to feedback/bugs page"
                             id="tw.feedback"
                         />
                     </a>
-                    <a href="https://github.com/TurboWarp/">
+                    <a href="https://github.com/AstroBlocksMod/monorepo">
                         <FormattedMessage
                             defaultMessage="Source Code"
                             description="Link to source code"
@@ -331,9 +331,9 @@ class Interface extends React.Component {
                                 <p>
                                     <FormattedMessage
                                         // eslint-disable-next-line max-len
-                                        defaultMessage="{APP_NAME} is a Scratch mod that compiles projects to JavaScript to make them run really fast. Try it out by inputting a project ID or URL above or choosing a featured project below."
-                                        description="Description of TurboWarp on the homepage"
-                                        id="tw.home.description"
+                                        defaultMessage="{APP_NAME} lets you create games, animations, and server-side apps with block-based programming. Try it out by inputting a project ID or URL above or choosing a featured project below."
+                                        description="Description of AstroBlocks on the homepage"
+                                        id="ab.home.description"
                                         values={{
                                             APP_NAME
                                         }}

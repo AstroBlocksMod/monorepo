@@ -1,6 +1,7 @@
 import ScratchStorage from '@turbowarp/scratch-storage';
 
 import defaultProject from './default-project';
+import {rubbleAsset} from './rubble-costume';
 
 /**
  * Wrapper for ScratchStorage which adds default web sources.
@@ -10,6 +11,21 @@ class Storage extends ScratchStorage {
     constructor () {
         super();
         this.cacheDefaultProject();
+        this.cacheBuiltinAssets();
+    }
+    /**
+     * Store assets that are bundled with the app rather than fetched from the asset host.
+     * Rubble is also a default project asset, but the default project can be replaced at
+     * build time, and the sprite library needs it regardless.
+     */
+    cacheBuiltinAssets () {
+        const rubble = rubbleAsset();
+        this.builtinHelper._store(
+            this.AssetType[rubble.assetType],
+            this.DataFormat[rubble.dataFormat],
+            rubble.data,
+            rubble.id
+        );
     }
     addOfficialScratchWebStores () {
         this.addWebStore(

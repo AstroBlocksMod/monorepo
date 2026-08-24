@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: extensions
+            filter: "@turbowarp/extensions"
+            scripts: validate lint check-format build
+          - name: scratch-blocks
+            filter: scratch-blocks
+            scripts: test:lint build
+          - name: scratch-gui
+            filter: scratch-gui
+            scripts: test:lint build test:unit
+          - name: scratch-paint
+            filter: scratch-paint
+            scripts: lint build test
+          - name: scratch-render
+            filter: scratch-render
+            scripts: lint build tap
+          - name: scratch-storage
+            filter: "@turbowarp/scratch-storage"
+            scripts: build test
+          - name: scratch-vm
+            filter: scratch-vm
+            scripts: lint build tap
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        # Version comes from "packageManager" in the root package.json.
+        uses: pnpm/action-setup@v6
+
+      - name: Install Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build workspace dependencies
+        # "<pkg>^..." is the dependencies of <pkg> without <pkg> itself. Exits 0 when
+        # the package has no workspace dependencies.
+        run: pnpm --filter "$FILTER^..." run build
+        env:
+          FILTER: ${{ matrix.filter }}
+
+      - name: Run package scripts
+        run: |
+          for script in $SCRIPTS; do
+            echo "::group::pnpm --filter $FILTER run $script"
+            pnpm --filter "$FILTER" run "$script"
+            echo "::endgroup::"
+          done
+        env:
+          FILTER: ${{ matrix.filter }}
+          SCRIPTS: ${{ matrix.scripts }}

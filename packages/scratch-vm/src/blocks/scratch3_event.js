@@ -27,7 +27,11 @@ class Scratch3EventBlocks {
             event_whentouchingobject: this.touchingObject,
             event_broadcast: this.broadcast,
             event_broadcastandwait: this.broadcastAndWait,
-            event_whengreaterthan: this.hatGreaterThanPredicate
+            event_whengreaterthan: this.hatGreaterThanPredicate,
+
+            // Merged in from Lily's Toolbox.
+            event_whenboolean: this.hatBooleanPredicate,
+            event_whenkeypressednamed: this.hatKeyPressedPredicate
         };
     }
 
@@ -58,6 +62,14 @@ class Scratch3EventBlocks {
             },
             event_whenbroadcastreceived: {
                 restartExistingThreads: true
+            },
+            event_whenboolean: {
+                restartExistingThreads: false,
+                edgeActivated: true
+            },
+            event_whenkeypressednamed: {
+                restartExistingThreads: false,
+                edgeActivated: true
             }
         };
     }
@@ -76,6 +88,14 @@ class Scratch3EventBlocks {
             return this.runtime.audioEngine && this.runtime.audioEngine.getLoudness() > value;
         }
         return false;
+    }
+
+    hatBooleanPredicate (args) {
+        return Cast.toBoolean(args.CONDITION);
+    }
+
+    hatKeyPressedPredicate (args, util) {
+        return util.ioQuery('keyboard', 'getKeyIsDown', [Cast.toString(args.KEY_OPTION)]);
     }
 
     broadcast (args, util) {

@@ -530,3 +530,261 @@ Blockly.Blocks['control_all_at_once'] = {
     });
   }
 };
+
+Blockly.Blocks['control_clonecount'] = {
+  /**
+   * Block for the number of clones that currently exist.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.CONTROL_CLONECOUNT,
+      "category": Blockly.Categories.control,
+      "extensions": ["colours_control", "output_number"]
+    });
+  }
+};
+
+Blockly.Blocks['control_isclone'] = {
+  /**
+   * Block for whether this target is a clone.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.CONTROL_ISCLONE,
+      "category": Blockly.Categories.control,
+      "extensions": ["colours_control", "output_boolean"]
+    });
+  }
+};
+
+Blockly.Blocks['control_comment_hat'] = {
+  /**
+   * Block for an inert comment above a script.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.CONTROL_COMMENT,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "COMMENT"
+        }
+      ],
+      "category": Blockly.Categories.control,
+      "extensions": ["colours_control", "shape_hat"]
+    });
+  }
+};
+
+Blockly.Blocks['control_comment_statement'] = {
+  /**
+   * Block for an inert comment between two blocks.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.CONTROL_COMMENT,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "COMMENT"
+        }
+      ],
+      "category": Blockly.Categories.control,
+      "extensions": ["colours_control", "shape_statement"]
+    });
+  }
+};
+
+Blockly.Blocks['control_comment_c'] = {
+  /**
+   * Block for an inert comment wrapped around a stack of blocks.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.CONTROL_COMMENT,
+      "message1": "%1", // Statement
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "COMMENT"
+        }
+      ],
+      "args1": [
+        {
+          "type": "input_statement",
+          "name": "SUBSTACK"
+        }
+      ],
+      "category": Blockly.Categories.control,
+      "extensions": ["colours_control", "shape_statement"]
+    });
+  }
+};
+
+Blockly.Blocks['control_comment_reporter'] = {
+  /**
+   * Block for an inert comment attached to a reported value.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.CONTROL_COMMENT_VALUE,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "INPUT"
+        },
+        {
+          "type": "input_value",
+          "name": "COMMENT"
+        }
+      ],
+      "category": Blockly.Categories.control,
+      "extensions": ["colours_control", "output_any"]
+    });
+  }
+};
+
+Blockly.Blocks['control_comment_boolean'] = {
+  /**
+   * Block for an inert comment attached to a boolean value.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.CONTROL_COMMENT_VALUE,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "INPUT",
+          "check": "Boolean"
+        },
+        {
+          "type": "input_value",
+          "name": "COMMENT"
+        }
+      ],
+      "category": Blockly.Categories.control,
+      "extensions": ["colours_control", "output_boolean"]
+    });
+  }
+};
+
+Blockly.Blocks['control_restartproject'] = {
+  /**
+   * Block for restarting the project from the beginning.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.CONTROL_RESTARTPROJECT,
+      "category": Blockly.Categories.control,
+      "extensions": ["colours_control", "shape_statement"]
+    });
+  }
+};
+
+Blockly.Blocks['control_importproject'] = {
+  /**
+   * Block for replacing the project with one loaded from a URL.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.CONTROL_IMPORTPROJECT,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "URL"
+        }
+      ],
+      "category": Blockly.Categories.control,
+      "extensions": ["colours_control", "shape_statement"]
+    });
+  }
+};
+
+Blockly.Blocks['control_importsprite'] = {
+  /**
+   * Block for adding a sprite loaded from a URL.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.CONTROL_IMPORTSPRITE,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "URL"
+        }
+      ],
+      "category": Blockly.Categories.control,
+      "extensions": ["colours_control", "shape_statement"]
+    });
+  }
+};
+
+Blockly.Blocks['control_deletesprite'] = {
+  /**
+   * Block for deleting a sprite by name.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.CONTROL_DELETESPRITE,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "SPRITE"
+        }
+      ],
+      "category": Blockly.Categories.control,
+      "extensions": ["colours_control", "shape_statement"]
+    });
+  }
+};
+
+Blockly.Blocks['control_seteditingtarget'] = {
+  /**
+   * Block for changing which target the editor is showing.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.CONTROL_SETEDITINGTARGET,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "SPRITE"
+        }
+      ],
+      "category": Blockly.Categories.control,
+      "extensions": ["colours_control", "shape_statement"]
+    });
+  }
+};
+
+Blockly.Blocks['control_loadextension'] = {
+  /**
+   * Block for loading an extension from a URL.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.CONTROL_LOADEXTENSION,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "URL"
+        }
+      ],
+      "category": Blockly.Categories.control,
+      "extensions": ["colours_control", "shape_statement"]
+    });
+  }
+};

@@ -3,8 +3,8 @@ import projectData from './project-data';
 /* eslint-disable import/no-unresolved */
 import overrideDefaultProject from '!arraybuffer-loader!./override-default-project.sb3';
 import backdrop from '!raw-loader!./cd21514d0531fdffb22204e0ec5ed84a.svg';
-import costume1 from '!raw-loader!./dango-cat.svg';
 /* eslint-enable import/no-unresolved */
+import {rubbleAsset} from '../rubble-costume';
 import {TextEncoder} from '../tw-text-encoder';
 
 const defaultProject = translator => {
@@ -36,12 +36,7 @@ const defaultProject = translator => {
         assetType: 'ImageVector',
         dataFormat: 'SVG',
         data: encoder.encode(backdrop)
-    }, {
-        id: '927d672925e7b99f7813735c484c6922',
-        assetType: 'ImageVector',
-        dataFormat: 'SVG',
-        data: encoder.encode(costume1)
-    }];
+    }, rubbleAsset()];
 };
 
 export default defaultProject;

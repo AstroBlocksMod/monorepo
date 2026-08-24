@@ -317,9 +317,10 @@ class LibraryComponent extends React.Component {
                                 href={dataItem.href}
                                 featured={dataItem.featured}
                                 hidden={dataItem.hidden}
-                                iconMd5={dataItem.costumes ? dataItem.costumes[0].md5ext : dataItem.md5ext}
+                                iconMd5={dataItem.rawURL ? null :
+                                    (dataItem.costumes ? dataItem.costumes[0].md5ext : dataItem.md5ext)}
                                 iconRawURL={dataItem.rawURL}
-                                icons={dataItem.costumes}
+                                icons={dataItem.rawURL ? null : dataItem.costumes}
                                 id={index}
                                 incompatibleWithScratch={dataItem.incompatibleWithScratch}
                                 favorite={this.state.favorites.includes(dataItem[this.props.persistableKey])}

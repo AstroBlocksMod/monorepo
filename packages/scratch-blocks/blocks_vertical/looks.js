@@ -589,3 +589,104 @@ Blockly.Blocks['looks_nextbackdrop'] = {
     });
   }
 };
+
+Blockly.Blocks['looks_effectvalue'] = {
+  /**
+   * Block for the current value of a graphic effect.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.LOOKS_EFFECTVALUE,
+      "args0": [
+        {
+          "type": "field_dropdown",
+          "name": "EFFECT",
+          "options": [
+            [Blockly.Msg.LOOKS_EFFECT_COLOR, 'COLOR'],
+            [Blockly.Msg.LOOKS_EFFECT_FISHEYE, 'FISHEYE'],
+            [Blockly.Msg.LOOKS_EFFECT_WHIRL, 'WHIRL'],
+            [Blockly.Msg.LOOKS_EFFECT_PIXELATE, 'PIXELATE'],
+            [Blockly.Msg.LOOKS_EFFECT_MOSAIC, 'MOSAIC'],
+            [Blockly.Msg.LOOKS_EFFECT_BRIGHTNESS, 'BRIGHTNESS'],
+            [Blockly.Msg.LOOKS_EFFECT_GHOST, 'GHOST']
+          ]
+        }
+      ],
+      "category": Blockly.Categories.looks,
+      "extensions": ["colours_looks", "output_number"]
+    });
+  }
+};
+
+Blockly.Blocks['looks_setcostumesvg'] = {
+  /**
+   * Block for replacing the SVG data of a costume.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.LOOKS_SETCOSTUMESVG,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "COSTUME"
+        },
+        {
+          "type": "input_value",
+          "name": "SVG"
+        }
+      ],
+      "category": Blockly.Categories.looks,
+      "extensions": ["colours_looks", "shape_statement"]
+    });
+  }
+};
+
+Blockly.Blocks['looks_importcostume'] = {
+  /**
+   * Block for adding a costume loaded from a URL.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.LOOKS_IMPORTCOSTUME,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "URL"
+        },
+        {
+          "type": "input_value",
+          "name": "NAME"
+        }
+      ],
+      "category": Blockly.Categories.looks,
+      "extensions": ["colours_looks", "shape_statement"]
+    });
+  }
+};
+
+Blockly.Blocks['looks_deletecostume'] = {
+  /**
+   * Block for deleting a costume from a sprite.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.LOOKS_DELETECOSTUME,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "COSTUME"
+        },
+        {
+          "type": "input_value",
+          "name": "SPRITE"
+        }
+      ],
+      "category": Blockly.Categories.looks,
+      "extensions": ["colours_looks", "shape_statement"]
+    });
+  }
+};

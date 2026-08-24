@@ -9176,6 +9176,39 @@
         "blocks": {}
     },
     {
+        "name": "Rubble",
+        "tags": [
+            "fantasy",
+            "space",
+            "planet"
+        ],
+        "isStage": false,
+        "variables": {},
+        "costumes": [
+            {
+                "assetId": "baf2cfcf706fca52c385f1fba2231fef",
+                "name": "Rubble",
+                "bitmapResolution": 2,
+                "md5ext": "baf2cfcf706fca52c385f1fba2231fef.png",
+                "dataFormat": "png",
+                "rotationCenterX": 96,
+                "rotationCenterY": 96
+            }
+        ],
+        "sounds": [
+            {
+                "assetId": "83a9787d4cb6f3b7632b4ddfebf74367",
+                "name": "pop",
+                "dataFormat": "wav",
+                "format": "",
+                "rate": 44100,
+                "sampleCount": 1032,
+                "md5ext": "83a9787d4cb6f3b7632b4ddfebf74367.wav"
+            }
+        ],
+        "blocks": {}
+    },
+    {
         "name": "Octopus",
         "tags": [
             "animals",
@@ -10026,7 +10059,7 @@
         "name": "Prince",
         "tags": [
             "people",
-            "☥",
+            "\u2625",
             "fantasy"
         ],
         "isStage": false,

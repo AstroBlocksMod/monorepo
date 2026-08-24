@@ -1,6 +1,12 @@
 const Cast = require('../util/cast');
 const Timer = require('../util/timer');
 const getMonitorIdForBlockWithArgs = require('../util/get-monitor-id');
+const {
+    guardedFetch,
+    guardedOpenWindow,
+    guardedRedirect,
+    guardedReadClipboard
+} = require('../util/tw-guarded-io');
 
 class Scratch3SensingBlocks {
     constructor (runtime) {
@@ -40,6 +46,13 @@ class Scratch3SensingBlocks {
          */
         this._questionList = [];
 
+        /**
+         * Timestamps of the frames rendered in the last second, used by the `fps` block.
+         * @type {!Array.<number>}
+         */
+        this._frameTimes = [];
+
+        this.runtime.on('BEFORE_EXECUTE', this._onFrame.bind(this));
         this.runtime.on('ANSWER', this._onAnswer.bind(this));
         this.runtime.on('PROJECT_START', this._resetAnswer.bind(this));
         this.runtime.on('PROJECT_STOP_ALL', this._clearAllQuestions.bind(this));
@@ -73,7 +86,30 @@ class Scratch3SensingBlocks {
             sensing_answer: this.getAnswer,
             sensing_username: this.getUsername,
             sensing_userid: () => {}, // legacy no-op block
-            sensing_online: this.isOnline
+            sensing_online: this.isOnline,
+
+            // Merged in from the TurboWarp Blocks and "Utilities" extensions.
+            sensing_lastkeypressed: this.getLastKeyPressed,
+            sensing_mousebuttondown: this.getMouseButtonDown,
+            sensing_spriteclicked: this.getSpriteClicked,
+            sensing_fps: this.getFps,
+            sensing_screen: this.getScreen,
+            sensing_window: this.getWindow,
+            sensing_userdetail: this.getUserDetail,
+            sensing_ismobile: this.isMobile,
+            sensing_currenturl: this.getCurrentURL,
+            sensing_urlhash: this.getURLHash,
+            sensing_clipboard: this.getClipboard,
+            sensing_setclipboard: this.setClipboard,
+            sensing_alert: this.alert,
+            sensing_confirm: this.confirm,
+            sensing_prompt: this.prompt,
+            sensing_openlink: this.openLink,
+            sensing_redirect: this.redirect,
+            sensing_console: this.console,
+            sensing_clearconsole: this.clearConsole,
+            sensing_fetchurl: this.fetchURL,
+            sensing_allsprites: this.getAllSprites
         };
     }
 
@@ -257,6 +293,7 @@ class Scratch3SensingBlocks {
         case 'hour': return date.getHours();
         case 'minute': return date.getMinutes();
         case 'second': return date.getSeconds();
+        case 'millisecond': return date.getMilliseconds();
         }
         return 0;
     }
@@ -355,6 +392,134 @@ class Scratch3SensingBlocks {
         }
         // We're running in some non-browser environment. We probably have internet.
         return true;
+    }
+
+    getLastKeyPressed (args, util) {
+        return util.ioQuery('keyboard', 'getLastKeyPressed');
+    }
+
+    getMouseButtonDown (args, util) {
+        return util.ioQuery('mouse', 'getButtonIsDown', [Cast.toNumber(args.MOUSE_BUTTON)]);
+    }
+
+    getSpriteClicked (args, util) {
+        return util.ioQuery('mouse', 'getIsDown') && util.target.isTouchingObject('_mouse_');
+    }
+
+    /**
+     * Record that a frame has started, dropping any frames older than a second.
+     * Based on https://www.growingwiththeweb.com/2017/12/fast-simple-js-fps-counter.html
+     * @private
+     */
+    _onFrame () {
+        const now = Date.now();
+        while (this._frameTimes.length > 0 && this._frameTimes[0] <= now - 1000) {
+            this._frameTimes.shift();
+        }
+        this._frameTimes.push(now);
+    }
+
+    getFps () {
+        return this._frameTimes.length;
+    }
+
+    getScreen (args) {
+        return Cast.toString(args.DIMENSION) === 'height' ? screen.height : screen.width;
+    }
+
+    getWindow (args) {
+        return Cast.toString(args.DIMENSION) === 'height' ? window.innerHeight : window.innerWidth;
+    }
+
+    getUserDetail (args) {
+        const userAgent = navigator.userAgent;
+        if (Cast.toString(args.DETAIL) === 'os') {
+            if (userAgent.includes('Mac OS')) return 'macOS';
+            if (userAgent.includes('CrOS')) return 'ChromeOS';
+            if (userAgent.includes('Android')) return 'Android';
+            if (userAgent.includes('Linux')) return 'Linux';
+            if (userAgent.includes('Windows')) return 'Windows';
+            if (/iPad|iPod|iPhone/.test(userAgent)) return 'iOS';
+            return 'Other';
+        }
+        if (userAgent.includes('Edg')) return 'Edge';
+        if (userAgent.includes('OPR/')) return 'Opera';
+        if (userAgent.includes('Chrome')) return 'Chrome';
+        if (userAgent.includes('MSIE')) return 'Internet Explorer';
+        if (userAgent.includes('Firefox')) return 'Firefox';
+        if (userAgent.includes('Safari')) return 'Safari';
+        return 'Other';
+    }
+
+    isMobile () {
+        return /Android|iPad|iPhone|iPod|Mobile/i.test(navigator.userAgent);
+    }
+
+    getCurrentURL () {
+        return location.href;
+    }
+
+    getURLHash () {
+        return location.hash ? location.hash.substring(1) : '';
+    }
+
+    getClipboard () {
+        return guardedReadClipboard(this.runtime);
+    }
+
+    setClipboard (args) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(Cast.toString(args.TEXT)).catch(() => {});
+        }
+    }
+
+    alert (args) {
+        // eslint-disable-next-line no-alert
+        alert(Cast.toString(args.TEXT));
+    }
+
+    confirm (args) {
+        // eslint-disable-next-line no-alert
+        return !!confirm(Cast.toString(args.TEXT));
+    }
+
+    prompt (args) {
+        // eslint-disable-next-line no-alert
+        return prompt(Cast.toString(args.TEXT), Cast.toString(args.DEFAULT)) || '';
+    }
+
+    openLink (args) {
+        return guardedOpenWindow(this.runtime, Cast.toString(args.URL));
+    }
+
+    redirect (args) {
+        return guardedRedirect(this.runtime, Cast.toString(args.URL));
+    }
+
+    console (args) {
+        const text = Cast.toString(args.TEXT);
+        switch (Cast.toString(args.LEVEL)) {
+        case 'warn': console.warn(text); break;
+        case 'error': console.error(text); break;
+        case 'info': console.info(text); break;
+        default: console.log(text); break;
+        }
+    }
+
+    clearConsole () {
+        console.clear();
+    }
+
+    fetchURL (args) {
+        return guardedFetch(this.runtime, Cast.toString(args.URL))
+            .then(response => response.text())
+            .catch(() => '');
+    }
+
+    getAllSprites () {
+        return JSON.stringify(this.runtime.targets
+            .filter(target => target.isOriginal && !target.isStage)
+            .map(target => target.sprite.name));
     }
 }
 

@@ -1,4 +1,5 @@
 const Cast = require('../util/cast');
+const {guardedFetch} = require('../util/tw-guarded-io');
 
 class Scratch3ControlBlocks {
     constructor (runtime) {
@@ -38,13 +39,32 @@ class Scratch3ControlBlocks {
             control_get_counter: this.getCounter,
             control_incr_counter: this.incrCounter,
             control_clear_counter: this.clearCounter,
-            control_all_at_once: this.allAtOnce
+            control_all_at_once: this.allAtOnce,
+
+            // Merged in from the Comment Blocks and "Utilities" extensions.
+            control_clonecount: this.getCloneCount,
+            control_isclone: this.isClone,
+            control_comment_hat: this.comment,
+            control_comment_statement: this.comment,
+            control_comment_c: this.commentC,
+            control_comment_reporter: this.commentValue,
+            control_comment_boolean: this.commentBoolean,
+            control_restartproject: this.restartProject,
+            control_importproject: this.importProject,
+            control_importsprite: this.importSprite,
+            control_deletesprite: this.deleteSprite,
+            control_seteditingtarget: this.setEditingTarget,
+            control_loadextension: this.loadExtension
         };
     }
 
     getHats () {
         return {
             control_start_as_clone: {
+                restartExistingThreads: false
+            },
+            control_comment_hat: {
+                // A comment above a script must never start it.
                 restartExistingThreads: false
             }
         };
@@ -190,6 +210,107 @@ class Scratch3ControlBlocks {
 
     incrCounter () {
         this._counter++;
+    }
+
+    getCloneCount () {
+        return this.runtime._cloneCounter;
+    }
+
+    isClone (args, util) {
+        return !util.target.isOriginal;
+    }
+
+    comment () {
+        // Comments do nothing. `control_comment_hat` is never started by anything, and
+        // `control_comment_statement` just falls through to the next block.
+    }
+
+    commentC (args, util) {
+        util.startBranch(1, false);
+    }
+
+    commentValue (args) {
+        return args.INPUT;
+    }
+
+    commentBoolean (args) {
+        return Cast.toBoolean(args.INPUT);
+    }
+
+    restartProject () {
+        this.runtime.greenFlag();
+    }
+
+    /**
+     * Whether a block is running inside the editor rather than a standalone player.
+     * Editor-only blocks confirm before doing something that would destroy the user's
+     * work; in a player there is nothing to lose and a dialog would just be in the way.
+     * The editor is the only thing that listens for workspace updates.
+     * @returns {boolean} True if the project is open in an editor.
+     * @private
+     */
+    _isEditor () {
+        const vm = this.runtime.vm;
+        return !!vm && vm.listenerCount('workspaceUpdate') > 0;
+    }
+
+    importProject (args) {
+        const vm = this.runtime.vm;
+        if (!vm) return;
+        const url = Cast.toString(args.URL);
+        // Ask first in the editor: this permanently destroys the open project.
+        const message = `Import a project from "${url}"? Everything in the current project will be deleted.`;
+        // eslint-disable-next-line no-alert
+        if (this._isEditor() && !confirm(message)) {
+            return;
+        }
+        return guardedFetch(this.runtime, url)
+            .then(response => response.arrayBuffer())
+            .then(buffer => vm.loadProject(buffer))
+            .then(() => vm.greenFlag())
+            .catch(() => {});
+    }
+
+    importSprite (args) {
+        const vm = this.runtime.vm;
+        if (!vm) return;
+        return guardedFetch(this.runtime, Cast.toString(args.URL))
+            .then(response => response.arrayBuffer())
+            .then(buffer => vm.addSprite(buffer))
+            .catch(() => {});
+    }
+
+    deleteSprite (args) {
+        const vm = this.runtime.vm;
+        if (!vm) return;
+        const name = Cast.toString(args.SPRITE);
+        const target = this.runtime.getSpriteTargetByName(name);
+        if (!target || target.isStage) {
+            return;
+        }
+        // eslint-disable-next-line no-alert
+        if (this._isEditor() && !confirm(`Delete the sprite "${name}"? This cannot be undone.`)) {
+            return;
+        }
+        vm.deleteSprite(target.id);
+    }
+
+    setEditingTarget (args) {
+        const vm = this.runtime.vm;
+        if (!vm) return;
+        const name = Cast.toString(args.SPRITE);
+        const target = name.toLowerCase() === 'stage' ?
+            this.runtime.getTargetForStage() :
+            this.runtime.getSpriteTargetByName(name);
+        if (target) {
+            vm.setEditingTarget(target.id);
+        }
+    }
+
+    loadExtension (args) {
+        const vm = this.runtime.vm;
+        if (!vm) return;
+        return vm.extensionManager.loadExtensionURL(Cast.toString(args.URL)).catch(() => {});
     }
 
     allAtOnce (args, util) {

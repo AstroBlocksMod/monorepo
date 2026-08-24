@@ -1,0 +1,28 @@
+packages:
+  - 'packages/*'
+
+strictPeerDependencies: false
+
+# These are webpack-4-era packages. Each one needs its own node_modules (scratch-blocks
+# build.py looks up ./node_modules/google-closure-library), but scratch-gui builds with
+# resolve.symlinks=false, so transitive deps have to be reachable by walking up to the
+# workspace root as well. Isolated linking + a full public hoist satisfies both.
+publicHoistPattern:
+  - "*"
+
+# Postinstall scripts. core-js/es5-ext are just donation banners and fsevents 1.x
+# no longer compiles. scratch-render's playwright pins its own browser build, so it
+# is allowed. chromedriver stays off: scratch-gui/scratch-blocks pin drivers for
+# Chrome 117/118, which cannot drive a current Chrome anyway.
+allowBuilds:
+  chromedriver: false
+  core-js: false
+  es5-ext: false
+  fsevents: false
+  playwright-chromium: true
+
+overrides:
+  # enzyme asks for cheerio ^1.0.0-rc.3, and cheerio >=1.1 pulls in undici 7,
+  # which throws "ReadableStream is not defined" under jest's jsdom environment.
+  # This is the version the packages' own lockfiles had resolved to.
+  cheerio: 1.0.0-rc.12

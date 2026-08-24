@@ -97,7 +97,7 @@ import addonsIcon from './addons.svg';
 import errorIcon from './tw-error.svg';
 import advancedIcon from './tw-advanced.svg';
 
-import objectiveScratchLogo from './objective-scratch-logo.svg';
+import astroBlocksLogo from './astroblocks-logo.svg';
 import ninetiesLogo from './nineties_logo.svg';
 import catLogo from './cat_logo.svg';
 import prehistoricLogo from './prehistoric-logo.svg';
@@ -325,7 +325,7 @@ class MenuBar extends React.Component {
             } else if (mode === '220022BC') {
                 document.getElementById('logo_img').src = prehistoricLogo;
             } else {
-                document.getElementById('logo_img').src = this.props.logo || objectiveScratchLogo;
+                document.getElementById('logo_img').src = this.props.logo || astroBlocksLogo;
             }
 
             this.props.onSetTimeTravelMode(mode);
@@ -500,7 +500,7 @@ class MenuBar extends React.Component {
                             })}
                             draggable={false}
                             id="logo_img"
-                            src={this.props.logo || objectiveScratchLogo}
+                            src={this.props.logo || astroBlocksLogo}
                             onClick={this.props.onClickLogo}
                         />
                     </div>

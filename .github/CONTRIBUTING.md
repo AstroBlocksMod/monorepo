@@ -1,6 +1,6 @@
 # Contributing
 
-Objective Scratch is a pnpm workspace holding the Scratch editor and its
+AstroBlocks is a pnpm workspace holding the Scratch editor and its
 supporting libraries under `packages/`. Changes to any of them land in this
 repository.
 

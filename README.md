@@ -1,7 +1,7 @@
-# Objective Scratch
+# AstroBlocks
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/ObjectiveScratch/monorepo/main/logo.svg" alt="Objective Scratch logo" width="35%">
+  <img src="https://raw.githubusercontent.com/AstroBlocksMod/monorepo/main/logo.svg" alt="AstroBlocks logo" width="35%">
 </p>
 
-Create games, animations, and server-side apps using the power of OOP and Scratch combined!
+Block-based programming to the stars!

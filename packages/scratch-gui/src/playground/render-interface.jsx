@@ -57,9 +57,9 @@ const handleClickAddonSettings = addonId => {
 
 const messages = defineMessages({
     defaultTitle: {
-        defaultMessage: 'Scratch with the power of OOP',
+        defaultMessage: 'Block-based programming to the stars!',
         description: 'Title of homepage',
-        id: 'os.guiDefaultTitle'
+        id: 'ab.guiDefaultTitle'
     }
 });
 
@@ -331,9 +331,9 @@ class Interface extends React.Component {
                                 <p>
                                     <FormattedMessage
                                         // eslint-disable-next-line max-len
-                                        defaultMessage="{APP_NAME} lets you create games, animations, and server-side apps using the power of OOP and Scratch combined. Try it out by inputting a project ID or URL above or choosing a featured project below."
-                                        description="Description of Objective Scratch on the homepage"
-                                        id="os.home.description"
+                                        defaultMessage="{APP_NAME} lets you create games, animations, and server-side apps with block-based programming. Try it out by inputting a project ID or URL above or choosing a featured project below."
+                                        description="Description of AstroBlocks on the homepage"
+                                        id="ab.home.description"
                                         values={{
                                             APP_NAME
                                         }}

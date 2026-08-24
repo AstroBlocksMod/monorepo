@@ -1,7 +1,7 @@
 {
-  "short_name": "Objective Scratch",
-  "name": "Objective Scratch",
-  "description": "Create games, animations, and server-side apps using the power of OOP and Scratch combined!",
+  "short_name": "AstroBlocks",
+  "name": "AstroBlocks",
+  "description": "Block-based programming to the stars!",
   "icons": [
     {
       "src": "images/192.png",

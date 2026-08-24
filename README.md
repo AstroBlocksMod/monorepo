@@ -1,11 +1,7 @@
 # Objective Scratch
-<img 
-    style="display: block; 
-           margin-left: auto;
-           margin-right: auto;
-           width: 35%;"
-    src="./logo.svg" 
-    alt="Objective Scratch logo">
-</img>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ObjectiveScratch/monorepo/main/logo.svg" alt="Objective Scratch logo" width="35%">
+</p>
 
 Create games, animations, and server-side apps using the power of OOP and Scratch combined!

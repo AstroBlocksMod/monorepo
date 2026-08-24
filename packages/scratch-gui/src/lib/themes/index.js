@@ -36,7 +36,7 @@ const BLOCKS_THREE = 'three';
 const BLOCKS_DARK = 'dark';
 const BLOCKS_HIGH_CONTRAST = 'high-contrast';
 const BLOCKS_CUSTOM = 'custom';
-const BLOCKS_DEFAULT = BLOCKS_THREE;
+const BLOCKS_DEFAULT = BLOCKS_HIGH_CONTRAST;
 const defaultBlockColors = blocksThree.blockColors;
 const BLOCKS_MAP = {
     [BLOCKS_THREE]: {

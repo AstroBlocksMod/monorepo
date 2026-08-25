@@ -396,20 +396,11 @@ export default [
             />
         ),
         incompatibleWithScratch: true,
-        tags: ['tw'],
+        tags: ['astro'],
         featured: true
     },
     {
-        name: (
-            <FormattedMessage
-                defaultMessage="{APP_NAME} Blocks"
-                description="Name of the strange 'TurboWarp Blocks' extension"
-                id="tw.twExtension.name"
-                values={{
-                    APP_NAME
-                }}
-            />
-        ),
+        name: 'TurboWarp Blocks',
         extensionId: 'tw',
         iconURL: twIcon,
         description: (

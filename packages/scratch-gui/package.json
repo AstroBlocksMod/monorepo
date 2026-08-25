@@ -135,7 +135,7 @@
     "selenium-webdriver": "3.6.0",
     "url-loader": "4.1.1",
     "web-audio-test-api": "0.5.2",
-    "yauzl": "2.10.0"
+    "yauzl": "3.4.0"
   },
   "jest": {
     "setupFiles": [

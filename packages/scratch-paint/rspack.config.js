@@ -1,14 +1,14 @@
-const defaultsDeep = require('lodash.defaultsdeep');
 const path = require('path');
-
-// Plugins
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const rspack = require('@rspack/core');
 
 // PostCss
 const autoprefixer = require('autoprefixer');
 const postcssVars = require('postcss-simple-vars');
 const postcssImport = require('postcss-import');
+
+// Mirrors the "browserslist" field in package.json, which is what
+// @babel/preset-env used to read.
+const targets = ['last 3 versions', 'Safari >= 8', 'iOS >= 8'];
 
 const base = {
     mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
@@ -16,18 +16,29 @@ const base = {
     module: {
         rules: [{
             test: /\.jsx?$/,
-            loader: 'babel-loader',
             include: path.resolve(__dirname, 'src'),
+            loader: 'builtin:swc-loader',
             options: {
-                plugins: ['transform-object-rest-spread'],
-                presets: [
-                    ['@babel/preset-env', {
-                        targets: ['last 3 versions', 'Safari >= 8', 'iOS >= 8']}],
-                    '@babel/preset-react']
+                jsc: {
+                    parser: {
+                        syntax: 'ecmascript',
+                        jsx: true
+                    },
+                    transform: {
+                        react: {
+                            // @babel/preset-react defaulted to React.createElement.
+                            runtime: 'classic'
+                        }
+                    }
+                },
+                env: {targets}
             }
         },
         {
             test: /\.css$/,
+            // Rspack's builtin CSS handling would otherwise claim these files and
+            // ignore the loader chain below.
+            type: 'javascript/auto',
             use: [{
                 loader: 'style-loader'
             }, {
@@ -58,13 +69,21 @@ const base = {
             loader: 'url-loader'
         },
         {
+            // Kept as a loader rather than an `asset/inline` module type: icons are
+            // also imported as `!../../tw-recolor/build!./icon.svg`, and the inline
+            // `!` prefix only suppresses a rule's loaders, not its module type.
             test: /\.svg$/,
-            loader: 'svg-url-loader?noquotes'
+            loader: 'svg-url-loader',
+            options: {
+                noquotes: true
+            }
         }]
     },
     optimization: {
         minimizer: [
-            new UglifyJsPlugin({
+            // Scoped to `.min.js`, which no entry currently produces. Kept as-is so
+            // the output stays byte-for-byte comparable with the webpack build.
+            new rspack.SwcJsMinimizerRspackPlugin({
                 include: /\.min\.js$/
             })
         ]
@@ -74,9 +93,11 @@ const base = {
 
 module.exports = [
     // For the playground
-    defaultsDeep({}, base, {
+    Object.assign({}, base, {
         devServer: {
-            contentBase: path.resolve(__dirname, 'playground'),
+            static: {
+                directory: path.resolve(__dirname, 'playground')
+            },
             host: '0.0.0.0',
             port: process.env.PORT || 8078
         },
@@ -88,14 +109,21 @@ module.exports = [
             filename: '[name].js'
         },
         plugins: base.plugins.concat([
-            new HtmlWebpackPlugin({
+            new rspack.HtmlRspackPlugin({
                 template: 'src/playground/index.ejs',
-                title: 'Scratch 3.0 Paint Editor Playground'
+                templateParameters: params => Object.assign({}, params, {
+                    htmlWebpackPlugin: {
+                        options: {title: 'Scratch 3.0 Paint Editor Playground'}
+                    }
+                })
             })
         ])
     }),
     // For use as a library
-    defaultsDeep({}, base, {
+    Object.assign({}, base, {
+        // webpack 4 derived the externals type from libraryTarget; Rspack defaults to
+        // `var`, which would emit broken global lookups instead of require() calls.
+        externalsType: 'commonjs2',
         externals: {
             'prop-types': 'prop-types',
             'react': 'react',
@@ -115,7 +143,10 @@ module.exports = [
         output: {
             path: path.resolve(__dirname, 'dist'),
             filename: '[name].js',
-            libraryTarget: 'commonjs2'
+            // Unnamed on purpose: webpack 4 emitted a bare `module.exports = ...`.
+            library: {
+                type: 'commonjs2'
+            }
         }
     })
 ];

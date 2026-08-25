@@ -9,7 +9,7 @@
     <link rel="icon" href="<%= htmlWebpackPlugin.options.root %>favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="<%= htmlWebpackPlugin.options.root %>images/apple-touch-icon.png">
     <meta name="theme-color" content="#4C97FF">
-    <% if (htmlWebpackPlugin.options.root === "/" || htmlWebpackPlugin.options.root === "") { %>
+    <% if (htmlWebpackPlugin.options.isRootPath) { %>
       <link rel="manifest" href="<%= htmlWebpackPlugin.options.root %>manifest.webmanifest">
     <% } %>
     <style>
@@ -168,7 +168,7 @@
           }
           if ('serviceWorker' in navigator) {
             setTimeout(hardRefresh, 5000);
-            navigator.serviceWorker.getRegistration(<%= JSON.stringify(htmlWebpackPlugin.options.root) %>)
+            navigator.serviceWorker.getRegistration(<%= htmlWebpackPlugin.options.rootJSON %>)
               .then(function(registration) {
                 if (registration) {
                   return registration.unregister();

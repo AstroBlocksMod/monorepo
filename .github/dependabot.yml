@@ -15,7 +15,7 @@ updates:
   # they are ignored below.
   #
   # Deliberately weekly, grouped, and capped: these packages are pinned to a
-  # webpack-4-era toolchain (see pnpm-workspace.yaml), so unattended major bumps
+  # pinned, legacy-leaning toolchain (see pnpm-workspace.yaml), so unattended major bumps
   # are more likely to break the build than to fix anything.
   - package-ecosystem: "npm"
     directory: "/"
@@ -33,5 +33,7 @@ updates:
       - dependency-name: "scratch-vm"
       - dependency-name: "@turbowarp/scratch-storage"
       # Pinned on purpose; see the comments in pnpm-workspace.yaml.
-      - dependency-name: "webpack"
+      - dependency-name: "@rspack/core"
+      - dependency-name: "@rspack/cli"
+      - dependency-name: "@rspack/dev-server"
       - dependency-name: "cheerio"

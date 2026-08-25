@@ -3,8 +3,8 @@ packages:
 
 strictPeerDependencies: false
 
-# These are webpack-4-era packages. Each one needs its own node_modules (scratch-blocks
-# build.py looks up ./node_modules/google-closure-library), but scratch-gui builds with
+# Each package needs its own node_modules (scratch-blocks build.py looks up
+# ./node_modules/google-closure-library), but scratch-gui builds with
 # resolve.symlinks=false, so transitive deps have to be reachable by walking up to the
 # workspace root as well. Isolated linking + a full public hoist satisfies both.
 publicHoistPattern:

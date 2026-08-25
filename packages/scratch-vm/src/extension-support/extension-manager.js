@@ -245,11 +245,16 @@ class ExtensionManager {
         }
 
         /* eslint-disable max-len */
-        let ExtensionWorker;
+        let createExtensionWorker;
         if (sandboxMode === 'worker') {
-            ExtensionWorker = require('worker-loader?name=js/extension-worker/extension-worker.[hash].js!./extension-worker');
+            // Native worker syntax rather than worker-loader, which relied on webpack 4
+            // internals. Required lazily and from a separate module so that Node never
+            // parses its `import.meta.url`; see tw-create-extension-worker.js.
+            // eslint-disable-next-line global-require
+            createExtensionWorker = require('./tw-create-extension-worker');
         } else if (sandboxMode === 'iframe') {
-            ExtensionWorker = (await import(/* webpackChunkName: "iframe-extension-worker" */ './tw-iframe-extension-worker')).default;
+            const IframeExtensionWorker = (await import(/* webpackChunkName: "iframe-extension-worker" */ './tw-iframe-extension-worker')).default;
+            createExtensionWorker = () => new IframeExtensionWorker();
         } else {
             throw new Error(`Invalid sandbox mode: ${sandboxMode}`);
         }
@@ -257,7 +262,7 @@ class ExtensionManager {
 
         return new Promise((resolve, reject) => {
             this.pendingExtensions.push({extensionURL: rewritten, resolve, reject});
-            dispatch.addWorker(new ExtensionWorker());
+            dispatch.addWorker(createExtensionWorker());
         }).catch(error => this._failedLoadingExtensionScript(error));
     }
 

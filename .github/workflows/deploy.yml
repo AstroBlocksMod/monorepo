@@ -48,7 +48,7 @@ jobs:
           # ever published as a project page instead, change this back to
           # "/${{ github.event.repository.name }}/".
           ROOT: /
-          # webpack 4 on a full scratch-gui production build runs past the default heap.
+          # Kept as headroom for a full scratch-gui production build.
           NODE_OPTIONS: --max-old-space-size=6144
 
       - name: Upload artifact

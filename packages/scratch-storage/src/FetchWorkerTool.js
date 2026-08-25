@@ -34,9 +34,13 @@ class PrivateFetchWorkerTool {
         try {
             if (this.isGetSupported) {
                 // eslint-disable-next-line global-require
-                const FetchWorker = require('worker-loader?{"inline":true,"fallback":true}!./FetchWorkerTool.worker');
+                const workerSource = require('./inline-worker-loader!./FetchWorkerTool.worker');
 
-                const worker = new FetchWorker();
+                // Built as an inline Blob rather than a separate file so that the
+                // worker still starts when scratch-storage is served cross-origin.
+                const worker = new Worker(URL.createObjectURL(
+                    new Blob([workerSource], {type: 'application/javascript'})
+                ));
 
                 worker.addEventListener('message', ({data}) => {
                     if (data.support) {

@@ -12,7 +12,7 @@
   "main": "./src/index.js",
   "browser": "./src/index.js",
   "scripts": {
-    "build": "webpack --progress --colors --bail",
+    "build": "rspack build",
     "coverage": "tap ./test/{unit,integration}/*.js --coverage --coverage-report=lcov",
     "docs": "jsdoc -c .jsdoc.json",
     "i18n:src": "mkdirp translations/core && format-message extract --out-file translations/core/en.json src/extensions/**/index.js",
@@ -20,12 +20,12 @@
     "lint": "eslint .",
     "prepublish": "in-publish && npm run build || not-in-publish",
     "server": "node ./src/server/cli.js",
-    "start": "webpack-dev-server",
+    "start": "rspack serve",
     "tap": "tap ./test/{unit,integration}/*.js",
     "tap:unit": "tap ./test/unit/*.js",
     "tap:integration": "tap ./test/integration/*.js",
     "test": "npm run lint && npm run tap",
-    "watch": "webpack --progress --colors --watch",
+    "watch": "rspack build --watch",
     "version": "json -f package.json -I -e \"this.repository.sha = '$(git log -n1 --pretty=format:%H)'\""
   },
   "tap": {
@@ -53,7 +53,6 @@
     "scratch-translate-extension-languages": "^1.0.7",
     "text-encoding": "0.7.0",
     "uuid": "8.3.2",
-    "worker-loader": "^1.1.1",
     "yargs": "^18.0.0"
   },
   "peerDependencies": {
@@ -62,16 +61,16 @@
   "devDependencies": {
     "@babel/core": "7.13.10",
     "@babel/preset-env": "7.14.8",
+    "@rspack/cli": "^2.1.10",
+    "@rspack/core": "^2.1.10",
+    "@rspack/dev-server": "^2.2.1",
     "adm-zip": "0.4.11",
     "babel-eslint": "10.1.0",
-    "babel-loader": "8.2.2",
     "callsite": "1.0.0",
-    "copy-webpack-plugin": "4.5.4",
     "docdash": "1.2.0",
     "eslint": "8.55.0",
     "eslint-config-scratch": "9.0.3",
-    "expose-loader": "0.7.5",
-    "file-loader": "2.0.0",
+    "expose-loader": "^5.0.1",
     "format-message-cli": "6.2.0",
     "in-publish": "2.0.1",
     "js-md5": "0.7.3",
@@ -85,14 +84,9 @@
     "scratch-render": "workspace:*",
     "scratch-render-fonts": "github:TurboWarp/scratch-render-fonts#master",
     "scratch-storage": "workspace:@turbowarp/scratch-storage@*",
-    "script-loader": "0.7.2",
     "stats.js": "0.17.0",
     "tap": "16.2.0",
-    "tiny-worker": "2.3.0",
-    "uglifyjs-webpack-plugin": "1.2.7",
-    "webpack": "4.47.0",
-    "webpack-cli": "3.1.0",
-    "webpack-dev-server": "3.11.2"
+    "tiny-worker": "2.3.0"
   },
   "private": true,
   "bin": {

@@ -50,7 +50,8 @@ Pushes to `main` deploy the editor to GitHub Pages automatically via
 
 ## A note on the toolchain
 
-These packages are pinned to a webpack 4-era dependency set, and
+These packages build with [Rspack](https://rspack.rs) (`rspack.config.js` in each
+package), but the surrounding dependency set is still largely legacy, and
 [`pnpm-workspace.yaml`](../pnpm-workspace.yaml) documents several overrides and
 hoisting rules that exist to keep that working. Please read those comments
 before changing dependency versions or resolution settings.

@@ -160,8 +160,8 @@ importers:
         specifier: 1.0.0
         version: 1.0.0
       bowser:
-        specifier: 1.9.4
-        version: 1.9.4
+        specifier: 2.14.1
+        version: 2.14.1
       classnames:
         specifier: 2.2.6
         version: 2.2.6
@@ -3005,8 +3005,8 @@ packages:
   boolbase@1.0.0:
     resolution: {integrity: sha512-JZOSA7Mo9sNGB8+UjSgzdLtokWAky1zbztM3WRLCbZ70/3cTANmQmOdR7y2g+J0e2WXywy1yS468tY+IruqEww==}
 
-  bowser@1.9.4:
-    resolution: {integrity: sha512-9IdMmj2KjigRq6oWhmwv1W36pDuA4STQZ8q6YO9um+x07xgYNCD3Oou+WP/3L1HNz7iqythGet3/p4wvc8AAwQ==}
+  bowser@2.14.1:
+    resolution: {integrity: sha512-tzPjzCxygAKWFOJP011oxFHs57HzIhOEracIgAePE4pqB3LikALKnSzUyU4MGs9/iCEUuHlAJTjTc5M+u7YEGg==}
 
   brace-expansion@1.1.18:
     resolution: {integrity: sha512-Edep/X9fGqVNmzKBVsDYIOtD+z1tuezV70LBjdCst9Tqu76lsnvRiZ6oTic1n+/BIwX6QDGAO94PN4N2SADvtw==}
@@ -13253,7 +13253,7 @@ snapshots:
 
   boolbase@1.0.0: {}
 
-  bowser@1.9.4: {}
+  bowser@2.14.1: {}
 
   brace-expansion@1.1.18:
     dependencies:

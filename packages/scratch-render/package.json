@@ -35,7 +35,7 @@
     "gh-pages": "1.2.0",
     "jsdoc": "3.6.7",
     "json": "9.0.6",
-    "playwright-chromium": "1.13.0",
+    "playwright-chromium": "1.62.1",
     "scratch-vm": "workspace:*",
     "tap": "11.1.5",
     "travis-after-all": "1.4.5"
@@ -45,7 +45,7 @@
     "@turbowarp/nanolog": "^0.2.0",
     "@turbowarp/scratch-svg-renderer": "^1.0.0-202312242305-12c360b",
     "grapheme-breaker": "0.3.2",
-    "ify-loader": "1.0.4",
+    "ify-loader": "1.1.0",
     "linebreak": "0.3.0",
     "raw-loader": "^0.5.1",
     "scratch-storage": "workspace:@turbowarp/scratch-storage@*",

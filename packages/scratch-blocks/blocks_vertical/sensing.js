@@ -485,7 +485,8 @@ Blockly.Blocks['sensing_current'] = {
             [Blockly.Msg.SENSING_CURRENT_DAYOFWEEK, 'DAYOFWEEK'],
             [Blockly.Msg.SENSING_CURRENT_HOUR, 'HOUR'],
             [Blockly.Msg.SENSING_CURRENT_MINUTE, 'MINUTE'],
-            [Blockly.Msg.SENSING_CURRENT_SECOND, 'SECOND']
+            [Blockly.Msg.SENSING_CURRENT_SECOND, 'SECOND'],
+            [Blockly.Msg.SENSING_CURRENT_MILLISECOND, 'MILLISECOND']
           ]
         }
       ],
@@ -550,6 +551,403 @@ Blockly.Blocks['sensing_online'] = {
       "category": Blockly.Categories.sensing,
       "checkboxInFlyout": true,
       "extensions": ["colours_sensing", "output_boolean"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_lastkeypressed'] = {
+  /**
+   * Block for the last key that was pressed.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_LASTKEYPRESSED,
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "output_string"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_mousebuttondown'] = {
+  /**
+   * Block for whether a specific mouse button is down.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_MOUSEBUTTONDOWN,
+      "args0": [
+        {
+          "type": "field_dropdown",
+          "name": "MOUSE_BUTTON",
+          "options": [
+            [Blockly.Msg.SENSING_MOUSEBUTTON_PRIMARY, '0'],
+            [Blockly.Msg.SENSING_MOUSEBUTTON_MIDDLE, '1'],
+            [Blockly.Msg.SENSING_MOUSEBUTTON_SECONDARY, '2']
+          ]
+        }
+      ],
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "output_boolean"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_spriteclicked'] = {
+  /**
+   * Block for whether this sprite is being clicked.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_SPRITECLICKED,
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "output_boolean"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_fps'] = {
+  /**
+   * Block for the number of frames rendered in the last second.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_FPS,
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "output_number"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_screen'] = {
+  /**
+   * Block for a dimension of the user's screen.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_SCREEN,
+      "args0": [
+        {
+          "type": "field_dropdown",
+          "name": "DIMENSION",
+          "options": [
+            [Blockly.Msg.SENSING_DIMENSION_WIDTH, 'width'],
+            [Blockly.Msg.SENSING_DIMENSION_HEIGHT, 'height']
+          ]
+        }
+      ],
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "output_number"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_window'] = {
+  /**
+   * Block for a dimension of the browser window.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_WINDOW,
+      "args0": [
+        {
+          "type": "field_dropdown",
+          "name": "DIMENSION",
+          "options": [
+            [Blockly.Msg.SENSING_DIMENSION_WIDTH, 'width'],
+            [Blockly.Msg.SENSING_DIMENSION_HEIGHT, 'height']
+          ]
+        }
+      ],
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "output_number"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_userdetail'] = {
+  /**
+   * Block for details about the user's browser or operating system.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_USERDETAIL,
+      "args0": [
+        {
+          "type": "field_dropdown",
+          "name": "DETAIL",
+          "options": [
+            [Blockly.Msg.SENSING_USERDETAIL_BROWSER, 'browser'],
+            [Blockly.Msg.SENSING_USERDETAIL_OS, 'os']
+          ]
+        }
+      ],
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "output_string"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_ismobile'] = {
+  /**
+   * Block for whether the user is on a mobile device.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_ISMOBILE,
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "output_boolean"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_currenturl'] = {
+  /**
+   * Block for the current page URL.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_CURRENTURL,
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "output_string"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_urlhash'] = {
+  /**
+   * Block for the hash fragment of the current page URL.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_URLHASH,
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "output_string"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_clipboard'] = {
+  /**
+   * Block for reading the system clipboard.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_CLIPBOARD,
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "output_string"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_setclipboard'] = {
+  /**
+   * Block for writing to the system clipboard.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_SETCLIPBOARD,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "TEXT"
+        }
+      ],
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "shape_statement"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_alert'] = {
+  /**
+   * Block for showing an alert dialog.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_ALERT,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "TEXT"
+        }
+      ],
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "shape_statement"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_confirm'] = {
+  /**
+   * Block for showing a confirmation dialog.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_CONFIRM,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "TEXT"
+        }
+      ],
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "output_boolean"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_prompt'] = {
+  /**
+   * Block for showing a prompt dialog.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_PROMPT,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "TEXT"
+        },
+        {
+          "type": "input_value",
+          "name": "DEFAULT"
+        }
+      ],
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "output_string"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_openlink'] = {
+  /**
+   * Block for opening a link in a new tab.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_OPENLINK,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "URL"
+        }
+      ],
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "shape_statement"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_redirect'] = {
+  /**
+   * Block for redirecting to a link.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_REDIRECT,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "URL"
+        }
+      ],
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "shape_statement"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_console'] = {
+  /**
+   * Block for writing to the developer console.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_CONSOLE,
+      "args0": [
+        {
+          "type": "field_dropdown",
+          "name": "LEVEL",
+          "options": [
+            [Blockly.Msg.SENSING_CONSOLE_LOG, 'log'],
+            [Blockly.Msg.SENSING_CONSOLE_WARN, 'warn'],
+            [Blockly.Msg.SENSING_CONSOLE_ERROR, 'error'],
+            [Blockly.Msg.SENSING_CONSOLE_INFO, 'info']
+          ]
+        },
+        {
+          "type": "input_value",
+          "name": "TEXT"
+        }
+      ],
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "shape_statement"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_clearconsole'] = {
+  /**
+   * Block for clearing the developer console.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_CLEARCONSOLE,
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "shape_statement"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_fetchurl'] = {
+  /**
+   * Block for fetching the contents of a URL.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_FETCHURL,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "URL"
+        }
+      ],
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "output_string"]
+    });
+  }
+};
+
+Blockly.Blocks['sensing_allsprites'] = {
+  /**
+   * Block for a list of every sprite in the project.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.SENSING_ALLSPRITES,
+      "category": Blockly.Categories.sensing,
+      "extensions": ["colours_sensing", "output_string"]
     });
   }
 };

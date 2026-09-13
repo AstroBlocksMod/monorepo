@@ -7,6 +7,15 @@ class Scratch3DataBlocks {
          * @type {Runtime}
          */
         this.runtime = runtime;
+
+        /**
+         * Values for the merged-in blocks that name their variable at runtime instead of
+         * using a variable field. These are not saved with the project.
+         * @type {object.<string, *>}
+         */
+        this._dynamicVariables = Object.create(null);
+
+        this.runtime.on('RUNTIME_DISPOSED', this.deleteAllDynamicVars.bind(this));
     }
 
     /**
@@ -31,8 +40,270 @@ class Scratch3DataBlocks {
             data_lengthoflist: this.lengthOfList,
             data_listcontainsitem: this.listContainsItem,
             data_hidelist: this.hideList,
-            data_showlist: this.showList
+            data_showlist: this.showList,
+
+            // Merged in from the List Tools and Lily's Toolbox extensions.
+            data_deleteitemsoflist: this.deleteItemsOfList,
+            data_deleteallofitemlist: this.deleteAllOfItemList,
+            data_replaceallofitemlist: this.replaceAllOfItemList,
+            data_listjoinedby: this.listJoinedBy,
+            data_timesitemappears: this.timesItemAppears,
+            data_itemindexoflist: this.itemIndexOfList,
+            data_listisempty: this.listIsEmpty,
+            data_itemnumexists: this.itemNumExists,
+            data_listorderis: this.listOrderIs,
+            data_setlistorder: this.setListOrder,
+            data_setlisttolist: this.setListToList,
+            data_concatlists: this.concatLists,
+            data_repeatlist: this.repeatList,
+            data_foreachitem: this.forEachItem,
+            data_foreachitemnum: this.forEachItemNum,
+            data_setlisttoarray: this.setListToArray,
+            data_listasarray: this.listAsArray,
+            data_setdynamicvar: this.setDynamicVar,
+            data_changedynamicvar: this.changeDynamicVar,
+            data_dynamicvar: this.getDynamicVar,
+            data_deletedynamicvar: this.deleteDynamicVar,
+            data_deletealldynamicvars: this.deleteAllDynamicVars,
+            data_listdynamicvars: this.listDynamicVars
         };
+    }
+
+    /**
+     * Look up the list a block's LIST argument refers to.
+     * @param {object} listArg The block's `{id, name}` list argument.
+     * @param {!object} util Block utility object.
+     * @returns {!Variable} The list.
+     * @private
+     */
+    _lookupList (listArg, util) {
+        return util.target.lookupOrCreateList(listArg.id, listArg.name);
+    }
+
+    /**
+     * Whether every item of an array is a value a Scratch list is allowed to hold.
+     * @param {*} array The parsed JSON value.
+     * @returns {boolean} True if the array can be used as a list's contents.
+     * @private
+     */
+    static _isValidListContents (array) {
+        return Array.isArray(array) && array.every(item => {
+            const type = typeof item;
+            return type === 'string' || type === 'number' || type === 'boolean';
+        });
+    }
+
+    deleteItemsOfList (args, util) {
+        const list = this._lookupList(args.LIST, util);
+        const first = Cast.toListIndex(args.INDEX1, list.value.length, false);
+        const last = Cast.toListIndex(args.INDEX2, list.value.length, false);
+        if (first === Cast.LIST_INVALID || last === Cast.LIST_INVALID || last < first) {
+            return;
+        }
+        list.value.splice(first - 1, (last - first) + 1);
+        list._monitorUpToDate = false;
+    }
+
+    deleteAllOfItemList (args, util) {
+        const list = this._lookupList(args.LIST, util);
+        const item = args.ITEM;
+        // Cast.compare so that Scratch considers the string '123' equal to the number 123,
+        // matching `item # of` and `list contains`.
+        const kept = list.value.filter(value => Cast.compare(value, item) !== 0);
+        if (kept.length === list.value.length) {
+            return;
+        }
+        list.value = kept;
+        list._monitorUpToDate = false;
+    }
+
+    replaceAllOfItemList (args, util) {
+        const list = this._lookupList(args.LIST, util);
+        let changed = false;
+        list.value = list.value.map(value => {
+            if (Cast.compare(value, args.ITEM) === 0) {
+                changed = true;
+                return args.REPLACE;
+            }
+            return value;
+        });
+        if (changed) {
+            list._monitorUpToDate = false;
+        }
+    }
+
+    listJoinedBy (args, util) {
+        return this._lookupList(args.LIST, util).value.join(Cast.toString(args.SEPARATOR));
+    }
+
+    timesItemAppears (args, util) {
+        return this._lookupList(args.LIST, util).value
+            .filter(value => Cast.compare(value, args.ITEM) === 0).length;
+    }
+
+    itemIndexOfList (args, util) {
+        const list = this._lookupList(args.LIST, util);
+        const matches = [];
+        for (let i = 0; i < list.value.length; i++) {
+            if (Cast.compare(list.value[i], args.ITEM) === 0) {
+                matches.push(i + 1);
+            }
+        }
+        const index = Cast.toListIndex(args.INDEX, matches.length, false);
+        if (index === Cast.LIST_INVALID) {
+            return 0;
+        }
+        return matches[index - 1];
+    }
+
+    listIsEmpty (args, util) {
+        return this._lookupList(args.LIST, util).value.length === 0;
+    }
+
+    itemNumExists (args, util) {
+        const list = this._lookupList(args.LIST, util);
+        return Cast.toListIndex(args.INDEX, list.value.length, false) !== Cast.LIST_INVALID;
+    }
+
+    listOrderIs (args, util) {
+        const list = this._lookupList(args.LIST, util);
+        const descending = Cast.toString(args.ORDER) === 'descending';
+        for (let i = 0; i < list.value.length - 1; i++) {
+            const comparison = Cast.compare(list.value[i + 1], list.value[i]);
+            if (descending ? comparison > 0 : comparison < 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    setListOrder (args, util) {
+        const list = this._lookupList(args.LIST, util);
+        switch (Cast.toString(args.ORDER)) {
+        case 'reversed':
+            list.value.reverse();
+            break;
+        case 'ascending':
+            list.value.sort(Cast.compare);
+            break;
+        case 'descending':
+            list.value.sort(Cast.compare).reverse();
+            break;
+        case 'randomised':
+            for (let i = list.value.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                const swap = list.value[i];
+                list.value[i] = list.value[j];
+                list.value[j] = swap;
+            }
+            break;
+        default:
+            return;
+        }
+        list._monitorUpToDate = false;
+    }
+
+    setListToList (args, util) {
+        const target = this._lookupList(args.LIST1, util);
+        const source = this._lookupList(args.LIST2, util);
+        target.value = source.value.slice();
+        target._monitorUpToDate = false;
+    }
+
+    concatLists (args, util) {
+        const source = this._lookupList(args.LIST1, util);
+        const target = this._lookupList(args.LIST2, util);
+        target.value = target.value.concat(source.value);
+        target._monitorUpToDate = false;
+    }
+
+    repeatList (args, util) {
+        const source = this._lookupList(args.LIST1, util);
+        const target = this._lookupList(args.LIST2, util);
+        const times = Math.floor(Cast.toNumber(args.TIMES));
+        if (times <= 0 || !Number.isFinite(times)) {
+            return;
+        }
+        const contents = source.value.slice();
+        for (let i = 0; i < times; i++) {
+            target.value = target.value.concat(contents);
+        }
+        target._monitorUpToDate = false;
+    }
+
+    forEachItem (args, util) {
+        const list = this._lookupList(args.LIST, util);
+        const variable = util.target.lookupOrCreateVariable(args.VARIABLE.id, args.VARIABLE.name);
+        if (typeof util.stackFrame.index === 'undefined') {
+            util.stackFrame.index = 0;
+        }
+        if (util.stackFrame.index < list.value.length) {
+            variable.value = list.value[util.stackFrame.index];
+            util.stackFrame.index++;
+            util.startBranch(1, true);
+        }
+    }
+
+    forEachItemNum (args, util) {
+        const list = this._lookupList(args.LIST, util);
+        const variable = util.target.lookupOrCreateVariable(args.VARIABLE.id, args.VARIABLE.name);
+        if (typeof util.stackFrame.index === 'undefined') {
+            util.stackFrame.index = 0;
+        }
+        if (util.stackFrame.index < list.value.length) {
+            util.stackFrame.index++;
+            variable.value = util.stackFrame.index;
+            util.startBranch(1, true);
+        }
+    }
+
+    setListToArray (args, util) {
+        let parsed;
+        try {
+            parsed = JSON.parse(Cast.toString(args.ARRAY));
+        } catch (e) {
+            return;
+        }
+        if (!Scratch3DataBlocks._isValidListContents(parsed)) {
+            return;
+        }
+        const list = this._lookupList(args.LIST, util);
+        list.value = parsed;
+        list._monitorUpToDate = false;
+    }
+
+    listAsArray (args, util) {
+        return JSON.stringify(this._lookupList(args.LIST, util).value);
+    }
+
+    setDynamicVar (args) {
+        this._dynamicVariables[Cast.toString(args.NAME)] = args.VALUE;
+    }
+
+    changeDynamicVar (args) {
+        const name = Cast.toString(args.NAME);
+        const previous = Cast.toNumber(this._dynamicVariables[name]);
+        this._dynamicVariables[name] = previous + Cast.toNumber(args.VALUE);
+    }
+
+    getDynamicVar (args) {
+        const name = Cast.toString(args.NAME);
+        if (name in this._dynamicVariables) {
+            return this._dynamicVariables[name];
+        }
+        return '';
+    }
+
+    deleteDynamicVar (args) {
+        delete this._dynamicVariables[Cast.toString(args.NAME)];
+    }
+
+    deleteAllDynamicVars () {
+        this._dynamicVariables = Object.create(null);
+    }
+
+    listDynamicVars () {
+        return JSON.stringify(Object.keys(this._dynamicVariables));
     }
 
     getVariable (args, util) {

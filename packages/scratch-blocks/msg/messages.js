@@ -56,6 +56,19 @@ Blockly.Msg.CONTROL_INCRCOUNTER = 'increment counter';
 Blockly.Msg.CONTROL_CLEARCOUNTER = 'clear counter';
 Blockly.Msg.CONTROL_ALLATONCE = 'all at once';
 
+// Merged extension blocks: Control
+Blockly.Msg.CONTROL_CLONECOUNT = 'clone count';
+Blockly.Msg.CONTROL_ISCLONE = 'is clone?';
+Blockly.Msg.CONTROL_COMMENT = '// %1';
+Blockly.Msg.CONTROL_COMMENT_DEFAULT = 'comment';
+Blockly.Msg.CONTROL_COMMENT_VALUE = '%1 // %2';
+Blockly.Msg.CONTROL_RESTARTPROJECT = 'restart project';
+Blockly.Msg.CONTROL_IMPORTPROJECT = 'import project from URL %1';
+Blockly.Msg.CONTROL_IMPORTSPRITE = 'import sprite from URL %1';
+Blockly.Msg.CONTROL_DELETESPRITE = 'delete sprite %1';
+Blockly.Msg.CONTROL_SETEDITINGTARGET = 'set editing target to %1';
+Blockly.Msg.CONTROL_LOADEXTENSION = 'load extension from URL %1';
+
 // Data blocks
 Blockly.Msg.DATA_SETVARIABLETO = 'set %1 to %2';
 Blockly.Msg.DATA_CHANGEVARIABLEBY = 'change %1 by %2';
@@ -76,6 +89,35 @@ Blockly.Msg.DATA_INDEX_ALL = 'all';
 Blockly.Msg.DATA_INDEX_LAST = 'last';
 Blockly.Msg.DATA_INDEX_RANDOM = 'random';
 
+// Merged extension blocks: Data
+Blockly.Msg.DATA_DELETEITEMSOFLIST = 'delete items %1 to %2 of %3';
+Blockly.Msg.DATA_DELETEALLOFITEMLIST = 'delete all %1 in %2';
+Blockly.Msg.DATA_REPLACEALLOFITEMLIST = 'replace all %1 with %2 in %3';
+Blockly.Msg.DATA_LISTJOINEDBY = '%1 joined by %2';
+Blockly.Msg.DATA_TIMESITEMAPPEARS = '# of times %1 appears in %2';
+Blockly.Msg.DATA_ITEMINDEXOFLIST = 'index # %1 of item %2 in %3';
+Blockly.Msg.DATA_LISTISEMPTY = '%1 is empty?';
+Blockly.Msg.DATA_ITEMNUMEXISTS = 'item %1 exists in %2?';
+Blockly.Msg.DATA_LISTORDERIS = 'order of %1 is %2?';
+Blockly.Msg.DATA_SETLISTORDER = 'set order of %1 to %2';
+Blockly.Msg.DATA_ORDER_REVERSED = 'reversed';
+Blockly.Msg.DATA_ORDER_ASCENDING = 'ascending';
+Blockly.Msg.DATA_ORDER_DESCENDING = 'descending';
+Blockly.Msg.DATA_ORDER_RANDOMISED = 'randomized';
+Blockly.Msg.DATA_SETLISTTOLIST = 'set items of %1 to %2';
+Blockly.Msg.DATA_CONCATLISTS = 'concatenate %1 onto %2';
+Blockly.Msg.DATA_REPEATLIST = 'repeat %1 %2 times in %3';
+Blockly.Msg.DATA_FOREACHITEM = 'for each item value %1 in %2';
+Blockly.Msg.DATA_FOREACHITEMNUM = 'for each item # %1 in %2';
+Blockly.Msg.DATA_SETLISTTOARRAY = 'set %1 to array %2';
+Blockly.Msg.DATA_LISTASARRAY = '%1 as array';
+Blockly.Msg.DATA_SETDYNAMICVAR = 'set dynamic variable %1 to %2';
+Blockly.Msg.DATA_CHANGEDYNAMICVAR = 'change dynamic variable %1 by %2';
+Blockly.Msg.DATA_DYNAMICVAR = 'dynamic variable %1';
+Blockly.Msg.DATA_DELETEDYNAMICVAR = 'delete dynamic variable %1';
+Blockly.Msg.DATA_DELETEALLDYNAMICVARS = 'delete all dynamic variables';
+Blockly.Msg.DATA_LISTDYNAMICVARS = 'all dynamic variables';
+
 // Event blocks
 Blockly.Msg.EVENT_WHENFLAGCLICKED = 'when %1 clicked';
 Blockly.Msg.EVENT_WHENTHISSPRITECLICKED = 'when this sprite clicked';
@@ -95,6 +137,10 @@ Blockly.Msg.EVENT_WHENKEYPRESSED_RIGHT = 'right arrow';
 Blockly.Msg.EVENT_WHENKEYPRESSED_DOWN = 'down arrow';
 Blockly.Msg.EVENT_WHENKEYPRESSED_UP = 'up arrow';
 Blockly.Msg.EVENT_WHENKEYPRESSED_ANY = 'any';
+
+// Merged extension blocks: Event
+Blockly.Msg.EVENT_WHENBOOLEAN = 'when %1 is true';
+Blockly.Msg.EVENT_WHENKEYPRESSEDNAMED = 'when key %1 pressed';
 
 // Looks blocks
 Blockly.Msg.LOOKS_SAYFORSECS = 'say %1 for %2 seconds';
@@ -139,6 +185,12 @@ Blockly.Msg.LOOKS_NEXTBACKDROP_BLOCK = 'next backdrop';
 Blockly.Msg.LOOKS_NEXTBACKDROP = 'next backdrop';
 Blockly.Msg.LOOKS_PREVIOUSBACKDROP = 'previous backdrop';
 Blockly.Msg.LOOKS_RANDOMBACKDROP = 'random backdrop';
+
+// Merged extension blocks: Looks
+Blockly.Msg.LOOKS_EFFECTVALUE = '%1 effect';
+Blockly.Msg.LOOKS_SETCOSTUMESVG = 'replace SVG data of costume %1 with %2';
+Blockly.Msg.LOOKS_IMPORTCOSTUME = 'add costume from URL %1 named %2';
+Blockly.Msg.LOOKS_DELETECOSTUME = 'delete costume %1 of sprite %2';
 
 // Motion blocks
 Blockly.Msg.MOTION_MOVESTEPS = 'move %1 steps';
@@ -217,6 +269,78 @@ Blockly.Msg.OPERATORS_MATHOP_LOG = 'log';
 Blockly.Msg.OPERATORS_MATHOP_EEXP = 'e ^';
 Blockly.Msg.OPERATORS_MATHOP_10EXP = '10 ^';
 
+// Merged extension blocks: Operators (text)
+Blockly.Msg.OPERATORS_LETTERSOF = 'letters %1 to %2 of %3';
+Blockly.Msg.OPERATORS_SPLIT = 'item %1 of %2 split by %3';
+Blockly.Msg.OPERATORS_COUNT = 'count %1 in %2';
+Blockly.Msg.OPERATORS_INDEXOF = 'index of %1 in %2';
+Blockly.Msg.OPERATORS_REPLACE = 'replace all %1 in %2 with %3';
+Blockly.Msg.OPERATORS_REPLACEFIRST = 'replace first %1 in %2 with %3';
+Blockly.Msg.OPERATORS_REPEATTEXT = 'repeat %1 %2 times';
+Blockly.Msg.OPERATORS_REVERSE = 'reverse %1';
+Blockly.Msg.OPERATORS_TRIM = 'trim whitespace %1 from %2';
+Blockly.Msg.OPERATORS_TRIM_BOTH = 'both sides';
+Blockly.Msg.OPERATORS_TRIM_START = 'the start';
+Blockly.Msg.OPERATORS_TRIM_END = 'the end';
+Blockly.Msg.OPERATORS_TOCASE = 'convert %1 to %2';
+Blockly.Msg.OPERATORS_ISCASE = 'is %1 %2?';
+Blockly.Msg.OPERATORS_CASE_LOWERCASE = 'lowercase';
+Blockly.Msg.OPERATORS_CASE_UPPERCASE = 'UPPERCASE';
+Blockly.Msg.OPERATORS_CASE_SENTENCECASE = 'Sentence case';
+Blockly.Msg.OPERATORS_CASE_TITLECASE = 'Title Case';
+Blockly.Msg.OPERATORS_CASE_EXACTTITLECASE = 'Exactly Title Case';
+Blockly.Msg.OPERATORS_CASE_MIXEDCASE = 'MiXeD CaSe';
+Blockly.Msg.OPERATORS_CASE_RANDOMCASE = 'RAndoMCaSe';
+Blockly.Msg.OPERATORS_CASE_CAMELCASE = 'camelCase';
+Blockly.Msg.OPERATORS_POSWITH = '%1 %2 with %3?';
+Blockly.Msg.OPERATORS_POSWITH_STARTS = 'starts';
+Blockly.Msg.OPERATORS_POSWITH_ENDS = 'ends';
+Blockly.Msg.OPERATORS_IDENTICAL = 'is %1 identical to %2?';
+Blockly.Msg.OPERATORS_UNICODEOF = 'unicode of %1';
+Blockly.Msg.OPERATORS_UNICODEFROM = 'unicode %1 as letter';
+Blockly.Msg.OPERATORS_NEWLINE = 'newline character';
+Blockly.Msg.OPERATORS_ENCODE = 'encode %1 as %2';
+Blockly.Msg.OPERATORS_DECODE = 'decode %1 from %2';
+Blockly.Msg.OPERATORS_CODING_BASE64 = 'base64';
+Blockly.Msg.OPERATORS_CODING_BINARY = 'binary';
+Blockly.Msg.OPERATORS_CODING_URI = 'URI component';
+Blockly.Msg.OPERATORS_STRINGTYPE = 'is %1 a %2?';
+Blockly.Msg.OPERATORS_STRINGTYPE_NUMBER = 'number';
+Blockly.Msg.OPERATORS_STRINGTYPE_TEXT = 'text';
+Blockly.Msg.OPERATORS_REPLACEREGEX = 'replace regex /%1/%2 in %3 with %4';
+Blockly.Msg.OPERATORS_MATCHREGEX = 'item %1 of %2 matched by regex /%3/%4';
+Blockly.Msg.OPERATORS_MATCHREGEXALL = 'matches of %1 using regex /%2/%3 as array';
+Blockly.Msg.OPERATORS_TESTREGEX = '%1 matches regex /%2/%3?';
+Blockly.Msg.OPERATORS_COUNTREGEX = 'count regex /%1/%2 in %3';
+Blockly.Msg.OPERATORS_PARSEJSON = '%1 of %2';
+
+// Merged extension blocks: Operators (math and logic)
+Blockly.Msg.OPERATORS_LE = '%1 \u2264 %2';
+Blockly.Msg.OPERATORS_GE = '%1 \u2265 %2';
+Blockly.Msg.OPERATORS_NOTEQUAL = '%1 \u2260 %2';
+Blockly.Msg.OPERATORS_NAND = '%1 nand %2';
+Blockly.Msg.OPERATORS_NOR = '%1 nor %2';
+Blockly.Msg.OPERATORS_XOR = '%1 xor %2';
+Blockly.Msg.OPERATORS_XNOR = '%1 xnor %2';
+Blockly.Msg.OPERATORS_TRUE = 'true';
+Blockly.Msg.OPERATORS_FALSE = 'false';
+Blockly.Msg.OPERATORS_BOOLIFY = '%1 as boolean';
+Blockly.Msg.OPERATORS_TERNARY = 'if %1 then %2 else %3';
+Blockly.Msg.OPERATORS_EXPONENT = '%1 ^ %2';
+Blockly.Msg.OPERATORS_ROOT = '%1 \u221a %2';
+Blockly.Msg.OPERATORS_NEGATIVE = '- %1';
+Blockly.Msg.OPERATORS_PI = 'pi';
+Blockly.Msg.OPERATORS_CLAMP = 'clamp %1 between %2 and %3';
+Blockly.Msg.OPERATORS_SIGN = 'sign of %1';
+Blockly.Msg.OPERATORS_BRIGHTNESS = 'brightness of %1';
+
+// Merged extension blocks: Operators (literal values)
+Blockly.Msg.OPERATORS_STRINGVALUE = 'text %1';
+Blockly.Msg.OPERATORS_COLOUR = 'color %1';
+Blockly.Msg.OPERATORS_ANGLE = 'angle %1';
+Blockly.Msg.OPERATORS_NOTEVALUE = 'note %1';
+Blockly.Msg.OPERATORS_MATRIX = 'matrix %1';
+
 // Procedures blocks
 Blockly.Msg.PROCEDURES_DEFINITION = 'define %1';
 
@@ -271,6 +395,41 @@ Blockly.Msg.SENSING_DAYSSINCE2000 = 'days since 2000';
 Blockly.Msg.SENSING_USERNAME = 'username';
 Blockly.Msg.SENSING_USERID = 'user id';
 
+// Merged extension blocks: Sensing
+Blockly.Msg.SENSING_CURRENT_MILLISECOND = 'millisecond';
+Blockly.Msg.SENSING_LASTKEYPRESSED = 'last key pressed';
+Blockly.Msg.SENSING_MOUSEBUTTONDOWN = '%1 mouse button down?';
+Blockly.Msg.SENSING_MOUSEBUTTON_PRIMARY = '(0) primary';
+Blockly.Msg.SENSING_MOUSEBUTTON_MIDDLE = '(1) middle';
+Blockly.Msg.SENSING_MOUSEBUTTON_SECONDARY = '(2) secondary';
+Blockly.Msg.SENSING_SPRITECLICKED = 'sprite clicked?';
+Blockly.Msg.SENSING_FPS = 'fps';
+Blockly.Msg.SENSING_SCREEN = 'screen %1';
+Blockly.Msg.SENSING_WINDOW = 'window %1';
+Blockly.Msg.SENSING_DIMENSION_WIDTH = 'width';
+Blockly.Msg.SENSING_DIMENSION_HEIGHT = 'height';
+Blockly.Msg.SENSING_USERDETAIL = '%1 of user';
+Blockly.Msg.SENSING_USERDETAIL_BROWSER = 'browser';
+Blockly.Msg.SENSING_USERDETAIL_OS = 'operating system';
+Blockly.Msg.SENSING_ISMOBILE = 'is mobile?';
+Blockly.Msg.SENSING_CURRENTURL = 'current URL';
+Blockly.Msg.SENSING_URLHASH = 'current URL hash';
+Blockly.Msg.SENSING_CLIPBOARD = 'clipboard';
+Blockly.Msg.SENSING_SETCLIPBOARD = 'set clipboard to %1';
+Blockly.Msg.SENSING_ALERT = 'alert %1';
+Blockly.Msg.SENSING_CONFIRM = 'confirm %1';
+Blockly.Msg.SENSING_PROMPT = 'prompt %1 with default %2';
+Blockly.Msg.SENSING_OPENLINK = 'open link %1 in new tab';
+Blockly.Msg.SENSING_REDIRECT = 'redirect to link %1';
+Blockly.Msg.SENSING_CONSOLE = 'console %1 %2';
+Blockly.Msg.SENSING_CONSOLE_LOG = 'log';
+Blockly.Msg.SENSING_CONSOLE_WARN = 'warn';
+Blockly.Msg.SENSING_CONSOLE_ERROR = 'error';
+Blockly.Msg.SENSING_CONSOLE_INFO = 'info';
+Blockly.Msg.SENSING_CLEARCONSOLE = 'clear console';
+Blockly.Msg.SENSING_FETCHURL = 'content from URL %1';
+Blockly.Msg.SENSING_ALLSPRITES = 'all sprites';
+
 // Sound blocks
 Blockly.Msg.SOUND_PLAY = 'start sound %1';
 Blockly.Msg.SOUND_PLAYUNTILDONE = 'play sound %1 until done';
@@ -284,6 +443,9 @@ Blockly.Msg.SOUND_CHANGEVOLUMEBY = 'change volume by %1';
 Blockly.Msg.SOUND_SETVOLUMETO = 'set volume to %1%';
 Blockly.Msg.SOUND_VOLUME = 'volume';
 Blockly.Msg.SOUND_RECORD = 'record...';
+
+// Merged extension blocks: Sound
+Blockly.Msg.SOUND_IMPORTSOUND = 'add sound from URL %1 named %2';
 
 // Category labels
 Blockly.Msg.CATEGORY_MOTION = 'Motion';

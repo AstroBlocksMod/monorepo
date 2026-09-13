@@ -327,3 +327,44 @@ Blockly.Blocks['event_whenkeypressed'] = {
     });
   }
 };
+
+Blockly.Blocks['event_whenboolean'] = {
+  /**
+   * Block for running a script whenever a condition becomes true.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.EVENT_WHENBOOLEAN,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "CONDITION",
+          "check": "Boolean"
+        }
+      ],
+      "category": Blockly.Categories.event,
+      "extensions": ["colours_event", "shape_hat"]
+    });
+  }
+};
+
+Blockly.Blocks['event_whenkeypressednamed'] = {
+  /**
+   * Block for running a script when a key named by a value is pressed.
+   * @this Blockly.Block
+   */
+  init: function() {
+    this.jsonInit({
+      "message0": Blockly.Msg.EVENT_WHENKEYPRESSEDNAMED,
+      "args0": [
+        {
+          "type": "input_value",
+          "name": "KEY_OPTION"
+        }
+      ],
+      "category": Blockly.Categories.event,
+      "extensions": ["colours_event", "shape_hat"]
+    });
+  }
+};

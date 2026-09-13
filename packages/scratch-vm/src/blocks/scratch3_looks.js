@@ -4,6 +4,8 @@ const uid = require('../util/uid');
 const StageLayering = require('../engine/stage-layering');
 const getMonitorIdForBlockWithArgs = require('../util/get-monitor-id');
 const MathUtil = require('../util/math-util');
+const log = require('../util/log');
+const {guardedFetch} = require('../util/tw-guarded-io');
 
 /**
  * @typedef {object} BubbleState - the bubble state associated with a particular target.
@@ -296,6 +298,10 @@ class Scratch3LooksBlocks {
             looks_nextcostume: this.nextCostume,
             looks_nextbackdrop: this.nextBackdrop,
             looks_changeeffectby: this.changeEffect,
+            looks_effectvalue: this.getEffectValue,
+            looks_setcostumesvg: this.setCostumeSVG,
+            looks_importcostume: this.importCostume,
+            looks_deletecostume: this.deleteCostume,
             looks_seteffectto: this.setEffect,
             looks_cleargraphiceffects: this.clearEffects,
             looks_changesizeby: this.changeSize,
@@ -550,6 +556,61 @@ class Scratch3LooksBlocks {
         let newValue = change + util.target.effects[effect];
         newValue = this.clampEffect(effect, newValue);
         util.target.setEffect(effect, newValue);
+    }
+
+    getEffectValue (args, util) {
+        const effect = Cast.toString(args.EFFECT).toLowerCase();
+        return util.target.effects[effect] || 0;
+    }
+
+    setCostumeSVG (args, util) {
+        const renderer = this.runtime.renderer;
+        if (!renderer) return;
+        const index = Cast.toNumber(args.COSTUME) - 1;
+        const costume = util.target.sprite.costumes[index];
+        if (!costume || typeof costume.skinId !== 'number') {
+            return;
+        }
+        try {
+            renderer.updateSVGSkin(costume.skinId, Cast.toString(args.SVG));
+            renderer._allSkins[costume.skinId].differsFromAsset = true;
+        } catch (e) {
+            log.warn(`Could not replace SVG data for costume ${index + 1}`, e);
+        }
+    }
+
+    importCostume (args) {
+        const vm = this.runtime.vm;
+        const storage = this.runtime.storage;
+        if (!vm || !storage) return;
+        const name = Cast.toString(args.NAME);
+        return guardedFetch(this.runtime, Cast.toString(args.URL))
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => {
+                const asset = new storage.Asset(
+                    storage.AssetType.ImageBitmap,
+                    null,
+                    storage.DataFormat.PNG,
+                    new Uint8Array(arrayBuffer),
+                    true
+                );
+                return vm.addCostume(`${asset.assetId}.${asset.dataFormat}`, {
+                    name: name,
+                    asset: asset,
+                    md5: `${asset.assetId}.${asset.dataFormat}`,
+                    dataFormat: asset.dataFormat,
+                    assetId: asset.assetId
+                });
+            })
+            .catch(() => {});
+    }
+
+    deleteCostume (args) {
+        const target = this.runtime.getSpriteTargetByName(Cast.toString(args.SPRITE));
+        if (!target) return;
+        const index = target.getCostumeIndexByName(Cast.toString(args.COSTUME));
+        if (index < 0) return;
+        target.deleteCostume(index);
     }
 
     setEffect (args, util) {

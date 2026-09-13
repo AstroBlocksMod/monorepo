@@ -67,6 +67,16 @@ class VirtualMachine extends EventEmitter {
          * @type {!Runtime}
          */
         this.runtime = new Runtime();
+
+        /**
+         * Back-reference so that block packages can reach VM-level APIs such as the
+         * security manager and the costume/sound/sprite editing methods. Blocks are
+         * constructed inside `new Runtime()` above, so they must only read this
+         * lazily, when a block actually runs.
+         * @type {!VirtualMachine}
+         */
+        this.runtime.vm = this;
+
         centralDispatch.setService('runtime', createRuntimeService(this.runtime)).catch(e => {
             log.error(`Failed to register runtime service: ${JSON.stringify(e)}`);
         });

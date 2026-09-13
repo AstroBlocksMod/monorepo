@@ -1,6 +1,7 @@
 const MathUtil = require('../util/math-util');
 const Cast = require('../util/cast');
 const Clone = require('../util/clone');
+const {guardedFetch} = require('../util/tw-guarded-io');
 
 /**
  * Occluded boolean value to make its use more understandable.
@@ -150,8 +151,37 @@ class Scratch3SoundBlocks {
             sound_effects_menu: this.effectsMenu,
             sound_setvolumeto: this.setVolume,
             sound_changevolumeby: this.changeVolume,
-            sound_volume: this.getVolume
+            sound_volume: this.getVolume,
+
+            // Merged in from ShovelUtils.
+            sound_importsound: this.importSound
         };
+    }
+
+    importSound (args) {
+        const vm = this.runtime.vm;
+        const storage = this.runtime.storage;
+        if (!vm || !storage) return;
+        const name = Cast.toString(args.NAME);
+        return guardedFetch(this.runtime, Cast.toString(args.URL))
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => {
+                const asset = new storage.Asset(
+                    storage.AssetType.Sound,
+                    null,
+                    storage.DataFormat.MP3,
+                    new Uint8Array(arrayBuffer),
+                    true
+                );
+                return vm.addSound({
+                    md5: `${asset.assetId}.${asset.dataFormat}`,
+                    asset: asset,
+                    name: name,
+                    dataFormat: asset.dataFormat,
+                    assetId: asset.assetId
+                });
+            })
+            .catch(() => {});
     }
 
     getMonitored () {

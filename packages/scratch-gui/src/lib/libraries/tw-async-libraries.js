@@ -1,10 +1,10 @@
-import {ROCKET_ASSET_ID, rocketURL} from '../rocket-costume';
+import {SHOPPY_ASSET_ID, shoppyURL} from '../shoppy-costume';
 
-// The rocket is bundled with the app instead of living on the asset host, so the library
+// The bag is bundled with the app instead of living on the asset host, so the library
 // needs a local URL for its thumbnail. Everything else about it is in sprites.json.
-const attachRocketThumbnail = sprites => sprites.map(sprite => (
-    sprite.costumes && sprite.costumes[0].assetId === ROCKET_ASSET_ID ?
-        {...sprite, rawURL: rocketURL} :
+const attachShoppyThumbnail = sprites => sprites.map(sprite => (
+    sprite.costumes && sprite.costumes[0].assetId === SHOPPY_ASSET_ID ?
+        {...sprite, rawURL: shoppyURL} :
         sprite
 ));
 
@@ -28,5 +28,5 @@ export const getSoundLibrary = asyncLibrary(
 );
 export const getSpriteLibrary = asyncLibrary(
     () => import(/* webpackChunkName: "library-sprites" */ './sprites.json')
-        .then(mod => ({default: attachRocketThumbnail(mod.default)}))
+        .then(mod => ({default: attachShoppyThumbnail(mod.default)}))
 );

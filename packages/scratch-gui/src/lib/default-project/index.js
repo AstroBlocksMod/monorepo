@@ -4,7 +4,7 @@ import projectData from './project-data';
 import overrideDefaultProject from '!arraybuffer-loader!./override-default-project.sb3';
 import backdrop from '!raw-loader!./cd21514d0531fdffb22204e0ec5ed84a.svg';
 /* eslint-enable import/no-unresolved */
-import {rocketAsset} from '../rocket-costume';
+import {shoppyAsset} from '../shoppy-costume';
 import {TextEncoder} from '../tw-text-encoder';
 
 const defaultProject = translator => {
@@ -26,7 +26,7 @@ const defaultProject = translator => {
     const encoder = new _TextEncoder();
 
     const projectJson = projectData(translator);
-    const rocket = rocketAsset();
+    const shoppy = shoppyAsset();
     return [{
         id: 0,
         assetType: 'Project',
@@ -38,8 +38,8 @@ const defaultProject = translator => {
         dataFormat: 'SVG',
         data: encoder.encode(backdrop)
     }, {
-        ...rocket,
-        data: encoder.encode(rocket.data)
+        ...shoppy,
+        data: encoder.encode(shoppy.data)
     }];
 };
 

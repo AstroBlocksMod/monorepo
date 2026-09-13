@@ -9176,24 +9176,23 @@
         "blocks": {}
     },
     {
-        "name": "AstroBlocks Rocket",
+        "name": "Shoppy Bag",
         "tags": [
-            "fantasy",
-            "space",
-            "rocket",
-            "transportation"
+            "things",
+            "shopping",
+            "bag"
         ],
         "isStage": false,
         "variables": {},
         "costumes": [
             {
-                "assetId": "2bb92959b1b8c6d45a7585ee3240a354",
-                "name": "rocket",
+                "assetId": "36d05424bb2d1b4aa7314622d188b486",
+                "name": "shoppy bag",
                 "bitmapResolution": 1,
-                "md5ext": "2bb92959b1b8c6d45a7585ee3240a354.svg",
+                "md5ext": "36d05424bb2d1b4aa7314622d188b486.svg",
                 "dataFormat": "svg",
-                "rotationCenterX": 55.00056,
-                "rotationCenterY": 55.228875
+                "rotationCenterX": 40.27823,
+                "rotationCenterY": 44.45689
             }
         ],
         "sounds": [

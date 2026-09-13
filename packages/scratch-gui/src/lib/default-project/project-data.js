@@ -1,6 +1,6 @@
 import {defineMessages} from 'react-intl';
 import sharedMessages from '../shared-messages';
-import {rocketCostume} from '../rocket-costume';
+import {shoppyCostume} from '../shoppy-costume';
 
 let messages = defineMessages({
     variable: {
@@ -60,7 +60,7 @@ const projectData = translateFunction => {
                 comments: {},
                 currentCostume: 0,
                 costumes: [
-                    rocketCostume(translator(messages.costume, {index: 1}))
+                    shoppyCostume(translator(messages.costume, {index: 1}))
                 ],
                 sounds: [],
                 volume: 100,

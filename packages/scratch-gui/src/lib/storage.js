@@ -1,7 +1,7 @@
 import ScratchStorage from '@turbowarp/scratch-storage';
 
 import defaultProject from './default-project';
-import {rocketAsset} from './rocket-costume';
+import {shoppyAsset} from './shoppy-costume';
 import {TextEncoder} from './tw-text-encoder';
 
 /**
@@ -16,16 +16,16 @@ class Storage extends ScratchStorage {
     }
     /**
      * Store assets that are bundled with the app rather than fetched from the asset host.
-     * The rocket is also a default project asset, but the default project can be replaced at
+     * The bag is also a default project asset, but the default project can be replaced at
      * build time, and the sprite library needs it regardless.
      */
     cacheBuiltinAssets () {
-        const rocket = rocketAsset();
+        const shoppy = shoppyAsset();
         this.builtinHelper._store(
-            this.AssetType[rocket.assetType],
-            this.DataFormat[rocket.dataFormat],
-            new TextEncoder().encode(rocket.data),
-            rocket.id
+            this.AssetType[shoppy.assetType],
+            this.DataFormat[shoppy.dataFormat],
+            new TextEncoder().encode(shoppy.data),
+            shoppy.id
         );
     }
     addOfficialScratchWebStores () {

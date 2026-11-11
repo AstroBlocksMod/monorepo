@@ -36,7 +36,6 @@
     "jsdoc": "3.6.7",
     "json": "9.0.6",
     "playwright-chromium": "1.13.0",
-    "scratch-vm": "workspace:*",
     "tap": "11.1.5",
     "travis-after-all": "1.4.5"
   },

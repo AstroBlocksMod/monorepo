@@ -669,9 +669,6 @@ importers:
       playwright-chromium:
         specifier: 1.13.0
         version: 1.13.0(supports-color@8.1.1)
-      scratch-vm:
-        specifier: workspace:*
-        version: link:../scratch-vm
       tap:
         specifier: 11.1.5
         version: 11.1.5(supports-color@8.1.1)

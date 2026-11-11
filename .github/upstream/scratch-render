@@ -1,0 +1,5 @@
+# Upstream of packages/scratch-render, and the upstream commit it was last synced to.
+# Updated by .github/workflows/upstream-sync.yml.
+repo=TurboWarp/scratch-render
+branch=develop
+commit=a67f7c9c07d459582c227d4fd3fae8f59d8fc9ce

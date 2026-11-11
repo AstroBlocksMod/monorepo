@@ -1,0 +1,5 @@
+# Upstream of packages/scratch-vm, and the upstream commit it was last synced to.
+# Updated by .github/workflows/upstream-sync.yml.
+repo=TurboWarp/scratch-vm
+branch=develop
+commit=c4823421cb7c17d8d8a89878851ce1668c26a21f

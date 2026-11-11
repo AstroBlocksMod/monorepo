@@ -1,0 +1,5 @@
+# Upstream of packages/scratch-paint, and the upstream commit it was last synced to.
+# Updated by .github/workflows/upstream-sync.yml.
+repo=TurboWarp/scratch-paint
+branch=develop
+commit=91d109564917e4df31705611a657e773fb23abbb

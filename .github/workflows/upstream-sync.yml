@@ -5,11 +5,17 @@ name: Upstream sync
 # package was last synced to; the sync PR updates it, so PRs can be merged any way,
 # squash included. See .github/scripts/merge-upstream.sh.
 #
-# Token: PRs opened with the default GITHUB_TOKEN do not trigger other workflows,
-# so CI would never run on them, and creating them at all requires "Allow GitHub
-# Actions to create and approve pull requests" (Settings > Actions > General). Set
-# an UPSTREAM_SYNC_TOKEN secret (a fine-grained token, or a GitHub App token, with
-# contents and pull-requests write access) to avoid both problems.
+# Requires an UPSTREAM_SYNC_TOKEN secret: a fine-grained token, or a GitHub App
+# token, with contents and pull-requests write access. The default GITHUB_TOKEN
+# is not used because PRs it opens do not trigger CI.
+#
+# Sync branches (upstream-sync/<package>):
+# - Branches with only this workflow's commits are rebuilt whenever upstream or
+#   main moves, so the lockfile and conflicts stay current.
+# - A branch with anyone else's commits is left alone until its PR is merged.
+#   To start over, delete the branch.
+# - Closing a sync PR without merging (and keeping its branch) skips that upstream
+#   version; a new PR opens once upstream has new commits.
 
 on:
   schedule:
@@ -32,8 +38,7 @@ on:
           - scratch-vm
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   sync:
@@ -52,9 +57,16 @@ jobs:
       BRANCH: upstream-sync/${{ matrix.package }}
       BOT_NAME: github-actions[bot]
       BOT_EMAIL: 41898283+github-actions[bot]@users.noreply.github.com
-      GH_TOKEN: ${{ secrets.UPSTREAM_SYNC_TOKEN || github.token }}
+      GH_TOKEN: ${{ secrets.UPSTREAM_SYNC_TOKEN }}
 
     steps:
+      - name: Require UPSTREAM_SYNC_TOKEN
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::The UPSTREAM_SYNC_TOKEN secret is not set. Sync PRs opened with GITHUB_TOKEN would not run CI."
+            exit 1
+          fi
+
       - name: Checkout
         uses: actions/checkout@v7
         with:
@@ -62,7 +74,7 @@ jobs:
           # All branches and history, so an existing sync branch can be inspected
           # and force-pushed with a lease. Credentials are kept for that push.
           fetch-depth: 0
-          token: ${{ secrets.UPSTREAM_SYNC_TOKEN || github.token }}
+          token: ${{ secrets.UPSTREAM_SYNC_TOKEN }}
 
       - name: Fetch upstream
         id: upstream
@@ -71,30 +83,53 @@ jobs:
       - name: Check for new upstream commits
         id: check
         run: |
-          if [ "$TIP" = "$BASE" ]; then
-            echo "::notice::$PACKAGE is up to date with $REPO@$TIP."
-            echo "needed=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
+          done_() { echo "$1"; echo "needed=false" >> "$GITHUB_OUTPUT"; exit 0; }
           remote="refs/remotes/origin/$BRANCH"
-          open=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq length)
-          if [ "$open" -gt 0 ] && git rev-parse --quiet --verify "$remote" >/dev/null; then
-            # Never force-push over someone resolving conflicts on the branch.
-            if git log --format=%ce "HEAD..$remote" | grep -qvFx "$BOT_EMAIL"; then
-              echo "::warning::$BRANCH has commits from someone other than $BOT_NAME; leaving it alone. Merge its PR, or delete the branch, to resume syncing $PACKAGE."
-              echo "needed=false" >> "$GITHUB_OUTPUT"
-              exit 0
+
+          # The newest PR from the sync branch in this repo (not a fork's branch of
+          # the same name), if any.
+          info=$(gh pr list --head "$BRANCH" --base main --state all \
+            --json number,state,isCrossRepository \
+            --jq '[.[] | select(.isCrossRepository | not)][0] // empty | "\(.number) \(.state)"')
+          read -r pr state <<< "$info" || true
+          echo "pr=$pr" >> "$GITHUB_OUTPUT"
+          echo "pr_state=$state" >> "$GITHUB_OUTPUT"
+
+          has_branch=false
+          if git rev-parse --quiet --verify "$remote" >/dev/null; then
+            has_branch=true
+            # Commits on the branch not in main, by anyone but this workflow.
+            if [ "$state" != MERGED ] &&
+              git log --format='%ae%n%ce' "HEAD..$remote" | grep -qvFx "$BOT_EMAIL"; then
+              done_ "::warning::$BRANCH has commits from someone other than $BOT_NAME, so it is left alone until its PR is merged. To start over, delete the branch."
             fi
-            proposed=$(git show "$remote:.github/upstream/$PACKAGE" | sed -n 's/^commit=//p')
+          fi
+
+          if [ "$TIP" = "$BASE" ]; then
+            # main is synced to the upstream tip, so an open sync PR proposes
+            # commits upstream no longer has (it reset its branch).
+            if [ "$state" = OPEN ]; then
+              gh pr close "$pr" --delete-branch \
+                --comment "Closing: $REPO \`$UPSTREAM_BRANCH\` is back at $REPO@$TIP, which \`main\` is already synced to."
+            fi
+            done_ "::notice::$PACKAGE is up to date with $REPO@$TIP."
+          fi
+
+          if [ "$has_branch" = true ]; then
+            proposed=$(git show "$remote:.github/upstream/$PACKAGE" 2>/dev/null | sed -n 's/^commit=//p')
             if [ "$proposed" = "$TIP" ]; then
-              echo "::notice::The open PR for $BRANCH already has $REPO@$TIP."
-              echo "needed=false" >> "$GITHUB_OUTPUT"
-              exit 0
+              if [ "$state" = CLOSED ]; then
+                done_ "::notice::PR #$pr for $REPO@$TIP was closed without merging; skipping until upstream has new commits. Delete $BRANCH to reopen it."
+              fi
+              if [ "$state" = OPEN ] && git merge-base --is-ancestor HEAD "$remote"; then
+                done_ "::notice::PR #$pr already has $REPO@$TIP and is up to date with main."
+              fi
             fi
           fi
           echo "needed=true" >> "$GITHUB_OUTPUT"
         env:
           REPO: ${{ steps.upstream.outputs.repo }}
+          UPSTREAM_BRANCH: ${{ steps.upstream.outputs.branch }}
           BASE: ${{ steps.upstream.outputs.base }}
           TIP: ${{ steps.upstream.outputs.tip }}
 
@@ -109,22 +144,20 @@ jobs:
         env:
           NOTES_FILE: ${{ runner.temp }}/notes.md
 
-      # The lockfile is only refreshed after a clean merge: with conflict markers in
-      # a package.json, pnpm cannot read it.
       - name: Install pnpm
-        if: steps.merge.outputs.conflicts == '0'
+        if: steps.check.outputs.needed == 'true'
         # Version comes from "packageManager" in the root package.json.
         uses: pnpm/action-setup@v6
 
       - name: Install Node.js
-        if: steps.merge.outputs.conflicts == '0'
+        if: steps.check.outputs.needed == 'true'
         uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
 
       - name: Update pnpm-lock.yaml
         id: lockfile
-        if: steps.merge.outputs.conflicts == '0'
+        if: steps.check.outputs.needed == 'true'
         run: |
           # Re-resolving with nothing changed still churns registry metadata
           # (deprecation notices, ...), which is noise in a sync PR.
@@ -132,6 +165,11 @@ jobs:
             echo "The merge changed no package.json; leaving pnpm-lock.yaml alone."
             exit 0
           fi
+          if git grep -qE '^<<<<<<< ' -- ':(glob)**/package.json'; then
+            echo "A package.json has conflict markers, so pnpm cannot read it; leaving pnpm-lock.yaml alone."
+            exit 0
+          fi
+          # --ignore-scripts: nothing from upstream runs here.
           if ! pnpm install --lockfile-only --no-frozen-lockfile --ignore-scripts; then
             echo "::warning::pnpm could not update pnpm-lock.yaml."
             echo "failed=true" >> "$GITHUB_OUTPUT"
@@ -156,7 +194,7 @@ jobs:
               echo
               echo "### Resolving the conflicts"
               echo
-              echo "Check out \`$BRANCH\`, fix the conflict markers, run \`pnpm install\` to update \`pnpm-lock.yaml\`, and push. Once you push, this workflow leaves the branch alone until the PR is merged or closed."
+              echo "Check out \`$BRANCH\` and resolve each file listed above. Delete its \`unresolved=\` line from \`.github/upstream/$PACKAGE\`, run \`pnpm install\` to update \`pnpm-lock.yaml\`, and push. Once you push, this workflow leaves the branch alone until the PR is merged."
               echo
               echo "To start over, delete the branch and re-run the [workflow]($RUN_URL)."
             elif [ "$LOCKFILE_FAILED" = true ]; then
@@ -166,26 +204,25 @@ jobs:
             fi
             echo
             echo "---"
-            echo "Opened by the [upstream sync workflow]($RUN_URL). Any merge method works, squash included."
+            echo "Opened by the [upstream sync workflow]($RUN_URL). Any merge method works, squash included. To skip this upstream version, close the PR and keep the branch."
           } > "$body"
 
           # Becomes the commit subject when the PR is squash-merged.
           title="chore: sync $PACKAGE with $REPO@${TIP:0:12}"
 
-          pr=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[0].number // empty')
-          if [ -z "$pr" ]; then
+          if [ "$PR_STATE" != OPEN ]; then
             draft=()
             [ "$CONFLICTS" != 0 ] && draft=(--draft)
             gh pr create --base main --head "$BRANCH" --title "$title" --body-file "$body" "${draft[@]}"
           else
-            gh pr edit "$pr" --title "$title" --body-file "$body"
-            is_draft=$(gh pr view "$pr" --json isDraft --jq .isDraft)
+            gh pr edit "$PR" --title "$title" --body-file "$body"
+            is_draft=$(gh pr view "$PR" --json isDraft --jq .isDraft)
             if [ "$CONFLICTS" != 0 ] && [ "$is_draft" = false ]; then
-              gh pr ready "$pr" --undo
+              gh pr ready "$PR" --undo
             elif [ "$CONFLICTS" = 0 ] && [ "$is_draft" = true ]; then
-              gh pr ready "$pr"
+              gh pr ready "$PR"
             fi
-            echo "Updated $(gh pr view "$pr" --json url --jq .url)"
+            echo "Updated $(gh pr view "$PR" --json url --jq .url)"
           fi
         env:
           REPO: ${{ steps.upstream.outputs.repo }}
@@ -193,6 +230,8 @@ jobs:
           BASE: ${{ steps.upstream.outputs.base }}
           TIP: ${{ steps.upstream.outputs.tip }}
           COUNT: ${{ steps.upstream.outputs.count }}
+          PR: ${{ steps.check.outputs.pr }}
+          PR_STATE: ${{ steps.check.outputs.pr_state }}
           CONFLICTS: ${{ steps.merge.outputs.conflicts }}
           LOCKFILE_FAILED: ${{ steps.lockfile.outputs.failed }}
           NOTES_FILE: ${{ runner.temp }}/notes.md

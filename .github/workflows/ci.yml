@@ -13,6 +13,31 @@ permissions:
   contents: read
 
 jobs:
+  # Upstream sync PRs commit conflicts as git left them and list each one as an
+  # "unresolved=" line in .github/upstream/<package>
+  # (see .github/scripts/merge-upstream.sh). Fail until all are resolved.
+  conflicts:
+    name: unresolved conflicts
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Check for unresolved conflicts
+        run: |
+          status=0
+          if grep -Hn '^unresolved=' .github/upstream/*; then
+            echo "::error::An upstream sync left the conflicts above. Resolve each file, then delete its unresolved= line."
+            status=1
+          fi
+          if git grep -nE '^(<<<<<<<|>>>>>>>)( |$)'; then
+            echo "::error::Conflict markers found."
+            status=1
+          fi
+          exit "$status"
+
   package:
     name: ${{ matrix.name }}
     runs-on: ubuntu-latest

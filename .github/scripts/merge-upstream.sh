@@ -13,10 +13,13 @@
 # Conflicts are handled like this:
 # - Files deleted in this repo on purpose (upstream lockfiles, upstream CI, .nvmrc,
 #   ...) that upstream has since modified stay deleted.
-# - Every other conflict is committed with its conflict markers in place. CI fails
-#   on them, so the PR cannot be merged until someone resolves them.
+# - Every other conflict is committed as git left it: text files with conflict
+#   markers, anything else (binary files, files deleted upstream but modified
+#   here, rename conflicts) with the local version. Each such path is listed as
+#   an "unresolved=" line in .github/upstream/<package>, and CI fails until those
+#   lines and any conflict markers are gone.
 #
-# stdout: conflicts=<number of files committed with conflict markers>
+# stdout: conflicts=<number of unresolved paths>
 # $NOTES_FILE, if set, receives Markdown notes for the PR description.
 
 set -euo pipefail
@@ -48,7 +51,8 @@ tip_commit=$(git commit-tree -p "$base_commit" -m "$repo@$tip" "$(wrap "$tip")")
 # Cherry-picking tip_commit merges with its parent as the merge base, which
 # applies exactly the upstream changes from base to tip.
 kept_deleted=()
-conflicted=()
+unresolved=() # paths
+reasons=()    # why each path in $unresolved needs a person, same order
 if ! git cherry-pick --no-commit "$tip_commit" >&2; then
   if [ -z "$(git ls-files --unmerged)" ]; then
     echo "error: git cherry-pick failed without leaving conflicts to resolve" >&2
@@ -59,19 +63,39 @@ if ! git cherry-pick --no-commit "$tip_commit" >&2; then
     case "$status" in
       DU) # Deleted here, modified upstream: keep it deleted.
         git rm --quiet -- "$path"
-        kept_deleted+=("$path") ;;
+        kept_deleted+=("$path")
+        continue ;;
       DD) # Deleted on both sides (a rename conflict): nothing to keep.
-        git rm --quiet -- "$path" ;;
-      AU | UD | UA | AA | UU)
-        git add -- "$path"
-        conflicted+=("$path") ;;
+        git rm --quiet -- "$path"
+        continue ;;
+      UU | AA)
+        if grep -q '^<<<<<<< ' -- "$path"; then
+          reason="conflict markers"
+        else
+          reason="changed on both sides and could not be merged (binary?); the local version is committed"
+        fi ;;
+      UD) reason="deleted upstream but modified here; the local version is committed" ;;
+      AU) reason="added here in a rename conflict; committed as is" ;;
+      UA) reason="added upstream in a rename conflict; committed as is" ;;
+      *) continue ;;
     esac
+    # Staging marks the path resolved in git's eyes; the unresolved= line below
+    # keeps it unresolved as far as CI is concerned.
+    git add -- "$path"
+    unresolved+=("$path")
+    reasons+=("$reason")
   done < <(git status --porcelain=v1 -z --no-renames)
 fi
 
+# Rewrite the record: same header and upstream, the new commit, and this sync's
+# unresolved paths (dropping any stale ones).
 {
-  sed '/^commit=/d' "$state"
+  sed -n -e '/^# Resolve each file/d' -e '/^#/p' -e '/^repo=/p' -e '/^branch=/p' "$state"
   echo "commit=$tip"
+  if [ ${#unresolved[@]} -gt 0 ]; then
+    echo "# Resolve each file below, then delete its line. CI fails while any remain."
+    printf 'unresolved=%s\n' "${unresolved[@]}"
+  fi
 } >"$state.tmp"
 mv "$state.tmp" "$state"
 git add -- "$state_path"
@@ -81,9 +105,9 @@ git add -- "$state_path"
   echo
   echo "Merges $count upstream commits from $repo $branch into packages/$pkg:"
   echo "https://github.com/$repo/compare/$base...$tip"
-  if [ ${#conflicted[@]} -gt 0 ]; then
-    printf '\nCommitted with conflict markers:\n'
-    printf '  %s\n' "${conflicted[@]}"
+  if [ ${#unresolved[@]} -gt 0 ]; then
+    printf '\nUnresolved conflicts (see .github/upstream/%s):\n' "$pkg"
+    printf '  %s\n' "${unresolved[@]}"
   fi
   if [ ${#kept_deleted[@]} -gt 0 ]; then
     printf '\nModified upstream but deleted here, so kept deleted:\n'
@@ -101,14 +125,16 @@ mapfile -t outside < <(git diff --name-only HEAD^ HEAD -- . \
 # The backticks below are Markdown, not command substitution.
 # shellcheck disable=SC2016
 {
-  if [ ${#conflicted[@]} -gt 0 ]; then
+  if [ ${#unresolved[@]} -gt 0 ]; then
     echo
-    echo "### Conflicts"
+    echo "### Unresolved conflicts"
     echo
     echo "> [!WARNING]"
-    echo "> These files were committed **with conflict markers** and must be resolved before merging:"
+    echo "> These files need a person before this can merge. Each is listed as an \`unresolved=\` line in \`$state_path\`, and CI fails until those lines are deleted."
     echo
-    printf -- '- `%s`\n' "${conflicted[@]}"
+    for i in "${!unresolved[@]}"; do
+      printf -- '- `%s`: %s\n' "${unresolved[$i]}" "${reasons[$i]}"
+    done
   fi
   if [ ${#kept_deleted[@]} -gt 0 ]; then
     echo
@@ -128,4 +154,4 @@ mapfile -t outside < <(git diff --name-only HEAD^ HEAD -- . \
   fi
 } >>"$notes"
 
-echo "conflicts=${#conflicted[@]}"
+echo "conflicts=${#unresolved[@]}"

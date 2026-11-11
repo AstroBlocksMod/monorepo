@@ -207,7 +207,9 @@ jobs:
             echo "Opened by the [upstream sync workflow]($RUN_URL). Any merge method works, squash included. To skip this upstream version, close the PR and keep the branch."
           } > "$body"
 
-          # Becomes the commit subject when the PR is squash-merged.
+          # Becomes the commit subject when the PR is squash-merged. AI review bots
+          # skip titles containing "with TurboWarp/" (see .coderabbit.yaml), so
+          # keep that wording if this changes.
           title="chore: sync $PACKAGE with $REPO@${TIP:0:12}"
 
           if [ "$PR_STATE" != OPEN ]; then

@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+reviews:
+  auto_review:
+    # Upstream sync PRs (.github/workflows/upstream-sync.yml) are titled
+    # "chore: sync <package> with TurboWarp/<package>@<commit>". Their diff is
+    # TurboWarp's code, which is not ours to review. Matching is case-insensitive.
+    ignore_title_keywords:
+      - "with TurboWarp/"

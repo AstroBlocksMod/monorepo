@@ -564,9 +564,10 @@ const parseScratchAssets = function (object, runtime, topLevel, zip) {
  * @param {?object} zip - Optional zipped assets for local file import
  * @param {object} assets - Promises for assets of this scratch object grouped
  *   into costumes and sounds
+ * @param {Map.<Target, number>} targetPaneOrders - (out) position of each parsed target in the sprite pane.
  * @return {!Promise.<Array.<Target>>} Promise for the loaded targets when ready, or null for unsupported objects.
  */
-const parseScratchObject = function (object, runtime, extensions, topLevel, zip, assets) {
+const parseScratchObject = function (object, runtime, extensions, topLevel, zip, assets, targetPaneOrders) {
     if (!Object.prototype.hasOwnProperty.call(object, 'objName')) {
         if (Object.prototype.hasOwnProperty.call(object, 'listName')) {
             // Shim these objects so they can be processed as monitors
@@ -618,7 +619,7 @@ const parseScratchObject = function (object, runtime, extensions, topLevel, zip,
             // - it's a stage variable, and
             // - the runtime can support another cloud variable
             const isCloud = variable.isPersistent && topLevel && runtime.canAddCloudVariable();
-            const newVariable = new Variable(
+            const newVariable = Variable.create(
                 getVariableId(variable.name, Variable.SCALAR_TYPE),
                 variable.name,
                 Variable.SCALAR_TYPE,
@@ -711,7 +712,7 @@ const parseScratchObject = function (object, runtime, extensions, topLevel, zip,
     if (Object.prototype.hasOwnProperty.call(object, 'lists')) {
         for (let k = 0; k < object.lists.length; k++) {
             const list = object.lists[k];
-            const newVariable = new Variable(
+            const newVariable = Variable.create(
                 getVariableId(list.listName, Variable.LIST_TYPE),
                 list.listName,
                 Variable.LIST_TYPE,
@@ -777,8 +778,7 @@ const parseScratchObject = function (object, runtime, extensions, topLevel, zip,
     if (Object.prototype.hasOwnProperty.call(object, 'indexInLibrary')) {
         // Temporarily store the 'indexInLibrary' property from the sb2 file
         // so that we can correctly order sprites in the target pane.
-        // This will be deleted after we are done parsing and ordering the targets list.
-        target.targetPaneOrder = object.indexInLibrary;
+        targetPaneOrders.set(target, object.indexInLibrary);
     }
 
     target.isStage = topLevel;
@@ -798,7 +798,15 @@ const parseScratchObject = function (object, runtime, extensions, topLevel, zip,
     if (object.children) {
         for (let m = 0; m < object.children.length; m++) {
             childrenPromises.push(
-                parseScratchObject(object.children[m], runtime, extensions, false, zip, assets.children[m])
+                parseScratchObject(
+                    object.children[m],
+                    runtime,
+                    extensions,
+                    false,
+                    zip,
+                    assets.children[m],
+                    targetPaneOrders
+                )
             );
         }
     }
@@ -852,7 +860,7 @@ const parseScratchObject = function (object, runtime, extensions, topLevel, zip,
                 // target).
                 for (const msgName in allBroadcastMsgs) {
                     const msgId = allBroadcastMsgs[msgName];
-                    const newMsg = new Variable(
+                    const newMsg = Variable.create(
                         msgId,
                         msgName,
                         Variable.BROADCAST_MESSAGE_TYPE,
@@ -886,21 +894,23 @@ const parseScratchObject = function (object, runtime, extensions, topLevel, zip,
     );
 };
 
-const reorderParsedTargets = function (targets) {
-    // Reorder parsed targets based on the temporary targetPaneOrder property
-    // and then delete it.
-
-    const reordered = targets.map((t, index) => {
-        t.layerOrder = index;
-        return t;
-    }).sort((a, b) => a.targetPaneOrder - b.targetPaneOrder);
-
-    // Delete the temporary target pane ordering since we shouldn't need it anymore.
-    reordered.forEach(t => {
-        delete t.targetPaneOrder;
-    });
-
-    return reordered;
+/**
+ * Reorder parsed targets from layer order into sprite-pane order.
+ * @param {Target[]} targets layer order
+ * @param {Map<Target, number>} targetPaneOrders position of targets in sprite pane
+ * @returns {{targets: Target[], layerOrder: number[]}} targets in sprite-pane order and their layer order
+ */
+const reorderParsedTargets = function (targets, targetPaneOrders) {
+    const reordered = targets
+        .map((target, index) => ({
+            target,
+            layerOrder: index
+        }))
+        .sort((a, b) => targetPaneOrders.get(a.target) - targetPaneOrders.get(b.target));
+    return {
+        targets: reordered.map(i => i.target),
+        layerOrder: reordered.map(i => i.layerOrder)
+    };
 };
 
 
@@ -918,17 +928,27 @@ const sb2import = function (json, runtime, optForceSprite, zip) {
         extensionIDs: new Set(),
         extensionURLs: new Map()
     };
+    const targetPaneOrders = new Map();
     return Promise.resolve(parseScratchAssets(json, runtime, !optForceSprite, zip))
         // Force this promise to wait for the next loop in the js tick. Let
         // storage have some time to send off asset requests.
         .then(assets => Promise.resolve(assets))
         .then(assets => (
-            parseScratchObject(json, runtime, extensions, !optForceSprite, zip, assets)
+            parseScratchObject(
+                json,
+                runtime,
+                extensions,
+                !optForceSprite,
+                zip,
+                assets,
+                targetPaneOrders
+            )
         ))
-        .then(reorderParsedTargets)
-        .then(targets => ({
+        .then(targets => reorderParsedTargets(targets, targetPaneOrders))
+        .then(({targets, layerOrder}) => ({
             targets,
-            extensions
+            extensions,
+            layerOrder
         }));
 };
 

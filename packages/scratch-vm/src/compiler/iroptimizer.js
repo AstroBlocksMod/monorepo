@@ -160,31 +160,31 @@ class IROptimizer {
 
         case InputOpcode.CAST_BOOLEAN: {
             const innerType = inputs.target.type;
-            if (innerType & InputType.BOOLEAN) return innerType;
+            if ((innerType & InputType.BOOLEAN) === innerType) return innerType;
             return InputType.BOOLEAN;
         }
 
         case InputOpcode.CAST_NUMBER: {
             const innerType = inputs.target.type;
-            if (innerType & InputType.NUMBER) return innerType;
+            if ((innerType & InputType.NUMBER) === innerType) return innerType;
             return InputType.NUMBER;
         }
 
         case InputOpcode.CAST_NUMBER_INDEX: {
             const innerType = inputs.target.type;
-            if (innerType & InputType.NUMBER_INDEX) return innerType;
+            if ((innerType & InputType.NUMBER_INDEX) === innerType) return innerType;
             return InputType.NUMBER_INDEX;
         }
 
         case InputOpcode.CAST_NUMBER_OR_NAN: {
             const innerType = inputs.target.type;
-            if (innerType & InputType.NUMBER_OR_NAN) return innerType;
+            if ((innerType & InputType.NUMBER_OR_NAN) === innerType) return innerType;
             return InputType.NUMBER_OR_NAN;
         }
 
         case InputOpcode.CAST_STRING: {
             const innerType = inputs.target.type;
-            if (innerType & InputType.STRING) return innerType;
+            if ((innerType & InputType.STRING) === innerType) return innerType;
             return InputType.STRING;
         }
 
@@ -594,7 +594,8 @@ class IROptimizer {
             modified = state.or(trueState) || modified;
             break;
         }
-        case StackOpcode.CONTROL_STOP_SCRIPT: {
+        case StackOpcode.CONTROL_STOP_SCRIPT:
+        case StackOpcode.PROCEDURE_RETURN: {
             modified = this.analyzeInputs(inputs, state) || modified;
             this.addPossibleExitState(state);
             break;
@@ -797,10 +798,10 @@ class IROptimizer {
      */
     optimizeScript (script, alreadyOptimized) {
         if (script.isProcedure) {
-            if (alreadyOptimized.has(script.procedureCode)) {
+            if (alreadyOptimized.has(script.procedureVariant)) {
                 return;
             }
-            alreadyOptimized.add(script.procedureCode);
+            alreadyOptimized.add(script.procedureVariant);
         }
 
         for (const procVariant of script.dependedProcedures) {

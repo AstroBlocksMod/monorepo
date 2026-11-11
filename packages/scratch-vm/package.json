@@ -12,13 +12,18 @@
   "main": "./src/index.js",
   "browser": "./src/index.js",
   "scripts": {
+<<<<<<< HEAD
     "build": "rspack build",
     "coverage": "tap ./test/{unit,integration}/*.js --coverage --coverage-report=lcov",
+=======
+    "build": "webpack --progress --colors --bail",
+>>>>>>> 2b6ead2e8d (TurboWarp/scratch-vm@0cb82afe62506f3d9f2ff849c95593f0473b5d2c)
     "docs": "jsdoc -c .jsdoc.json",
     "i18n:src": "mkdirp translations/core && format-message extract --out-file translations/core/en.json src/extensions/**/index.js",
     "i18n:push": "tx-push-src scratch-editor extensions translations/core/en.json",
     "lint": "eslint .",
     "prepublish": "in-publish && npm run build || not-in-publish",
+<<<<<<< HEAD
     "server": "node ./src/server/cli.js",
     "start": "rspack serve",
     "tap": "tap ./test/{unit,integration}/*.js",
@@ -26,13 +31,15 @@
     "tap:integration": "tap ./test/integration/*.js",
     "test": "npm run lint && npm run tap",
     "watch": "rspack build --watch",
+=======
+    "start": "webpack-dev-server",
+    "test": "npm run lint && npm run test:node",
+    "test:node": "node --test --test-force-exit --test-timeout=30000 test/unit/*.js test/integration/*.js",
+    "test:unit": "node --test --test-force-exit --test-timeout=30000 test/unit/*.js",
+    "test:integration": "node --test --test-force-exit --test-timeout=30000 test/integration/*.js",
+    "watch": "webpack --progress --colors --watch",
+>>>>>>> 2b6ead2e8d (TurboWarp/scratch-vm@0cb82afe62506f3d9f2ff849c95593f0473b5d2c)
     "version": "json -f package.json -I -e \"this.repository.sha = '$(git log -n1 --pretty=format:%H)'\""
-  },
-  "tap": {
-    "branches": 60,
-    "functions": 70,
-    "lines": 70,
-    "statements": 70
   },
   "dependencies": {
     "@turbowarp/json": "^0.1.2",
@@ -85,8 +92,16 @@
     "scratch-render-fonts": "github:TurboWarp/scratch-render-fonts#master",
     "scratch-storage": "workspace:@turbowarp/scratch-storage@*",
     "stats.js": "0.17.0",
+<<<<<<< HEAD
     "tap": "16.2.0",
     "tiny-worker": "2.3.0"
+=======
+    "tiny-worker": "2.3.0",
+    "uglifyjs-webpack-plugin": "1.2.7",
+    "webpack": "4.47.0",
+    "webpack-cli": "3.1.0",
+    "webpack-dev-server": "3.11.2"
+>>>>>>> 2b6ead2e8d (TurboWarp/scratch-vm@0cb82afe62506f3d9f2ff849c95593f0473b5d2c)
   },
   "private": true,
   "bin": {

@@ -111,7 +111,6 @@ class ScriptTreeGenerator {
         this.script.procedureVariant = procedureVariant;
         this.script.procedureCode = procedureCode;
         this.script.isProcedure = true;
-        this.script.yields = false;
 
         const paramNamesIdsAndDefaults = this.blocks.getProcedureParamNamesIdsAndDefaults(procedureCode);
         if (paramNamesIdsAndDefaults === null) {
@@ -225,7 +224,7 @@ class ScriptTreeGenerator {
         case 'text':
             return this.createConstantInput(block.fields.TEXT.value, preserveStrings);
         case 'argument_reporter_string_number': {
-            const name = block.fields.VALUE.value;
+            const name = String(block.fields.VALUE.value);
             // lastIndexOf because multiple parameters with the same name will use the value of the last definition
             const index = this.script.arguments.lastIndexOf(name);
             if (index === -1) {
@@ -241,7 +240,7 @@ class ScriptTreeGenerator {
         }
         case 'argument_reporter_boolean': {
             // see argument_reporter_string_number above
-            const name = block.fields.VALUE.value;
+            const name = String(block.fields.VALUE.value);
             const index = this.script.arguments.lastIndexOf(name);
             if (index === -1) {
                 if (name.toLowerCase() === 'is compiled?' || name.toLowerCase() === 'is turbowarp?') {
@@ -629,7 +628,7 @@ class ScriptTreeGenerator {
                 target: this.descendInputOfBlock(block, 'CLONE_OPTION').toType(InputType.STRING)
             });
         case 'control_delete_this_clone':
-            return new IntermediateStackBlock(StackOpcode.CONTROL_CLONE_DELETE, {}, true);
+            return new IntermediateStackBlock(StackOpcode.CONTROL_CLONE_DELETE);
         case 'control_forever':
             return new IntermediateStackBlock(StackOpcode.CONTROL_WHILE, {
                 condition: this.createConstantInput(true).toType(InputType.BOOLEAN),
@@ -675,7 +674,7 @@ class ScriptTreeGenerator {
         case 'control_stop': {
             const level = block.fields.STOP_OPTION.value;
             if (level === 'all') {
-                return new IntermediateStackBlock(StackOpcode.CONTROL_STOP_ALL, {}, true);
+                return new IntermediateStackBlock(StackOpcode.CONTROL_STOP_ALL);
             } else if (level === 'other scripts in sprite' || level === 'other scripts in stage') {
                 return new IntermediateStackBlock(StackOpcode.CONTROL_STOP_OTHERS);
             } else if (level === 'this script') {
@@ -1019,6 +1018,8 @@ class ScriptTreeGenerator {
             }
 
             const node = this.descendStackedBlock(block);
+            node.blockId = blockId;
+
             this.script.yields = this.script.yields || node.yields;
             result.blocks.push(node);
 
@@ -1126,9 +1127,10 @@ class ScriptTreeGenerator {
             return null;
         }
         try {
+            const input = this.descendInput(block);
             return new IntermediateStackBlock(StackOpcode.VISUAL_REPORT, {
-                input: this.descendInput(block)
-            });
+                input
+            }, input.yields);
         } catch (e) {
             return null;
         }
@@ -1225,7 +1227,7 @@ class ScriptTreeGenerator {
         }
 
         // Create it locally...
-        const newVariable = new Variable(id, name, type, false);
+        const newVariable = Variable.create(id, name, type, false);
 
         // Intentionally not using newVariable.id so that this matches vanilla Scratch quirks regarding
         // handling of null variable IDs.
@@ -1237,7 +1239,7 @@ class ScriptTreeGenerator {
             // sprite.clones has all instances of this sprite including the original and all clones
             for (const clone of target.sprite.clones) {
                 if (!Object.prototype.hasOwnProperty.call(clone.variables, id)) {
-                    clone.variables[String(id)] = new Variable(id, name, type, false);
+                    clone.variables[String(id)] = Variable.createSibling(newVariable, id, name, type, false);
                 }
             }
         }
@@ -1366,8 +1368,10 @@ class ScriptTreeGenerator {
             // interpreter parity, but the reuslt is ignored.
             const opcodeFunction = this.runtime.getOpcodeFunction(opcode);
             if (opcodeFunction) {
+                const hat = this.descendCompatLayerStack(hatBlock);
+                this.script.yields = this.script.yields || hat.yields;
                 return new IntermediateStack([
-                    this.descendCompatLayerStack(hatBlock),
+                    hat,
                     ...this.walkStack(nextBlock).blocks
                 ]);
             }

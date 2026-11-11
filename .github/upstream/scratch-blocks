@@ -1,0 +1,5 @@
+# Upstream of packages/scratch-blocks, and the upstream commit it was last synced to.
+# Updated by .github/workflows/upstream-sync.yml.
+repo=TurboWarp/scratch-blocks
+branch=develop
+commit=7c58de666658df1bb447d010132aa3914c10f41e

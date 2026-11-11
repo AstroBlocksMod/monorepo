@@ -1,0 +1,5 @@
+# Upstream of packages/scratch-storage, and the upstream commit it was last synced to.
+# Updated by .github/workflows/upstream-sync.yml.
+repo=TurboWarp/scratch-storage
+branch=develop
+commit=23eb08c25a68505bb8896913d2d94076707b712a

@@ -59,6 +59,11 @@ jobs:
             scripts: lint build test
           - name: scratch-render
             filter: scratch-render
+            # The integration tests load scratch-vm's built bundle. scratch-vm is
+            # not a dependency of scratch-render (scratch-vm depends on it, so that
+            # would be a cycle), so build it here. "scratch-vm..." also selects
+            # scratch-render, which pnpm then builds first.
+            test_deps: scratch-vm...
             scripts: lint build tap
           - name: scratch-storage
             filter: "@turbowarp/scratch-storage"
@@ -87,11 +92,17 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build workspace dependencies
-        # "<pkg>^..." is the dependencies of <pkg> without <pkg> itself. Exits 0 when
-        # the package has no workspace dependencies.
-        run: pnpm --filter "$FILTER^..." run build
+        # "<pkg>^..." is the dependencies of <pkg> without <pkg> itself, plus anything
+        # the package's tests need (test_deps). Exits 0 when nothing is selected.
+        run: |
+          filters=(--filter "$FILTER^...")
+          if [ -n "$TEST_DEPS" ]; then
+            filters+=(--filter "$TEST_DEPS")
+          fi
+          pnpm "${filters[@]}" run build
         env:
           FILTER: ${{ matrix.filter }}
+          TEST_DEPS: ${{ matrix.test_deps }}
 
       - name: Run package scripts
         run: |

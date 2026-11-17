@@ -45,6 +45,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - name: docs
+            filter: astroblocks-docs
+            scripts: check-format typecheck build
           - name: extensions
             filter: "@turbowarp/extensions"
             scripts: validate lint check-format build

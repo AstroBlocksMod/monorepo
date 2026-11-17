@@ -44,12 +44,19 @@ jobs:
         env:
           NODE_ENV: production
           # The site is served from the root of the custom domain
-          # (objscratch.hermits.cc), so asset URLs get no path prefix. If this is
+          # (astroblocks.hermits.cc), so asset URLs get no path prefix. If this is
           # ever published as a project page instead, change this back to
           # "/${{ github.event.repository.name }}/".
           ROOT: /
           # Kept as headroom for a full scratch-gui production build.
           NODE_OPTIONS: --max-old-space-size=6144
+
+      - name: Build docs
+        # The docs site is published next to the editor, under /docs/. That prefix is
+        # the "base" in docs/rspress.config.ts; change both together.
+        run: |
+          pnpm --filter astroblocks-docs run build
+          cp -R docs/build packages/scratch-gui/build/docs
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5

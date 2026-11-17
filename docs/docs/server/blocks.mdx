@@ -1,0 +1,45 @@
+# Web Server blocks
+
+The **Web Server** extension holds the blocks a project uses to answer requests in [server mode](./). In the editor they do nothing, and the reporters give empty values.
+
+## Handling requests
+
+| Block                           | What it does                                                                                                                           |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `when page [PAGE] is requested` | Runs when a request comes in for that page. The page is the path and query string exactly as requested, such as `/` or `/about?tab=2`. |
+| `when page is not found`        | Runs when no `when page is requested` script matches. The status starts at 404.                                                        |
+
+Each request is handled by the script that matches it, so blocks below a hat always refer to that request even when several requests come in at once.
+
+## Building the response
+
+| Block                      | What it does                                                                                                                           |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `set format to [MIME]`     | Sets the `Content-Type` of the response. The menu has common types, and you can drop in any reporter. The default is `text/plain`.     |
+| `set status to [STATUS]`   | Sets the HTTP status code. The default is 200, or 404 under `when page is not found`.                                                  |
+| `set headers to [HEADERS]` | Sets extra response headers, written as a JSON object such as `{"Cache-Control": "no-store"}`. Text that is not valid JSON is ignored. |
+| `return content [CONTENT]` | Sends the response and stops the script.                                                                                               |
+
+Set the format, status and headers before `return content`. A request gets exactly one response, so blocks after `return content` never run.
+
+## Reading the request
+
+| Block                         | What it gives                                                     |
+| ----------------------------- | ----------------------------------------------------------------- |
+| `page`                        | The requested path and query string.                              |
+| `ip address`                  | The address of the client that made the request.                  |
+| `request headers`             | The request headers as a JSON object. Header names are lowercase. |
+| `request data`                | The request body as text.                                         |
+| `request method is [METHOD]?` | Whether the request used that method, such as `GET` or `POST`.    |
+
+## Files
+
+These need the file permissions described in [Permissions](./permissions). Without them, reads give empty text and writes do nothing.
+
+| Block                       | What it does                                                              |
+| --------------------------- | ------------------------------------------------------------------------- |
+| `read file from [PATH]`     | Gives the contents of a text file.                                        |
+| `write [CONTENT] to [PATH]` | Writes text to a file, replacing what was there.                          |
+| `failed to access file?`    | Whether the last read or write ran into an error, such as a missing file. |
+
+Paths starting with `~` are inside your home folder.

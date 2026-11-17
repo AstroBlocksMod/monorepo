@@ -1,0 +1,31 @@
+# Permissions
+
+A project is code someone else wrote. In server mode it runs on your computer, so AstroBlocks keeps it away from your files and your network unless you allow it.
+
+## How access is decided
+
+When a project tries to read a file, write a file, or make a network request:
+
+1. If you passed the matching option (`--allow-file-read`, `--allow-file-write` or `--allow-network-access`), the request goes ahead.
+2. If not, and the server is running in an interactive terminal, it stops and asks you. Press <kbd>Y</kbd> to allow it for the rest of the run, or any other key to refuse.
+3. If not, and nobody can be asked (for example under a process manager or in a container), the request is refused.
+
+For files there is one more check. Even with permission, reads and writes only work inside the file scope, which is your home folder unless you change it:
+
+```sh
+pnpm server serve ~/site/project.sb3 --allow-file-read --file-scope ~/site/public --
+```
+
+`--file-scope` takes one or more folders. End the list with `--` when more arguments follow it.
+
+:::warning
+Read access lets a project read any file in the scope, which by default includes your documents, app settings and browser data. Only grant it to projects you trust, and narrow the scope to the folder the project needs.
+:::
+
+## Extensions
+
+A project can only load extensions from [extensions.turbowarp.org](https://extensions.turbowarp.org/). Any other extension URL is blocked and a warning is printed.
+
+## Developer mode
+
+With `--dev`, the server also accepts a new project at `/_astro_devServer_updateProj` and restarts it in place. Only requests sent from the AstroBlocks editor's own address are accepted.

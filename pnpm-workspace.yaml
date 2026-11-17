@@ -1,5 +1,7 @@
 packages:
   - 'packages/*'
+  # The docs site (Rspress). Kept outside packages/, which holds only TurboWarp forks.
+  - 'docs'
 
 strictPeerDependencies: false
 

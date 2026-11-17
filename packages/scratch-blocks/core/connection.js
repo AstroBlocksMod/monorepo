@@ -26,6 +26,8 @@
 
 goog.provide('Blockly.Connection');
 
+// astro: Type annotations, see the file for what they are.
+goog.require('Blockly.AstroTypes');
 goog.require('Blockly.Events.BlockMove');
 
 goog.require('goog.asserts');
@@ -442,6 +444,13 @@ Blockly.Connection.prototype.isConnectionAllowed = function(candidate) {
   // Type checking.
   var canConnect = this.canConnectWithReason_(candidate);
   if (canConnect != Blockly.Connection.CAN_CONNECT) {
+    return false;
+  }
+
+  // astro: A slot with a type annotation refuses a reporter of another type.
+  // This is the only place that is checked, so that it applies to dragging
+  // and never to loading a workspace (see astro_types.js).
+  if (!Blockly.AstroTypes.allowsDrop(this, candidate)) {
     return false;
   }
 

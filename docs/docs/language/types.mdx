@@ -62,6 +62,31 @@ An annotation never changes what a correct program does. If every value already 
 
 An input is converted when the custom block is called, and the return value is converted where the call is used. A custom block with a return type that stops without returning anything gives that type's starting value, so `area of (w) (h): number` gives `0`.
 
+## In the editor
+
+With annotations on, a slot that has a type refuses a block that gives another type. The block will not snap in, the same way a round block will not go into a six-sided slot.
+
+The slots that have a type are:
+
+- the value of a **set** block for a typed variable
+- a typed input of a custom block, where the custom block is used
+- the value of a **return** block inside a custom block with a return type
+
+The editor knows the type of these blocks:
+
+| Type      | Blocks                                                                                                                                                    |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `number`  | The arithmetic operators, **pick random**, **round**, **length of**, positions and direction, **size**, **volume**, **timer**, mouse position and similar |
+| `text`    | **join**, **letter of**, **answer**, **username**                                                                                                         |
+| `boolean` | Every six-sided block                                                                                                                                     |
+| Its own   | A typed variable, a typed custom block input, a custom block with a return type, and `(value) as [type]`                                                  |
+
+Every other block fits everywhere, including untyped variables and blocks from extensions. A `text` slot takes numbers and booleans as well, since every value can be written as text.
+
+So **set [score: number] to (answer)** is refused, because an answer is text. Say what you mean with **set [score: number] to ((answer) as [number])**.
+
+Only dragging is checked. Blocks that are already connected stay connected when you turn annotations on or rename a variable, and the project still runs, with values converted as described above.
+
 ## Blocks
 
 The Types category has three blocks.

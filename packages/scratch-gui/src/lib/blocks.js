@@ -358,5 +358,11 @@ export default function (vm) {
         return true;
     };
 
+    // astro: slots with a type annotation refuse reporters of another type while the project has
+    // annotations on, which the VM knows (see scratch-blocks/core/astro_types.js).
+    ScratchBlocks.AstroTypes.isEnabled = function () {
+        return !!vm.runtime.astroTypes;
+    };
+
     return ScratchBlocks;
 }

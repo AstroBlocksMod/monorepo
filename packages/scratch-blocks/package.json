@@ -32,7 +32,7 @@
   "devDependencies": {
     "@rspack/cli": "^2.1.10",
     "@rspack/core": "^2.1.10",
-    "async": "2.6.4",
+    "async": "3.2.6",
     "chromedriver": "^118.0.1",
     "eslint": "4.19.1",
     "event-stream": "3.3.5",

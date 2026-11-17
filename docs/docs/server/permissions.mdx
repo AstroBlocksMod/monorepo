@@ -1,0 +1,39 @@
+# Permissions
+
+A project is code someone else wrote. In server mode it runs on your computer, so AstroBlocks keeps it away from your files and your network unless you allow it.
+
+## How access is decided
+
+When a project tries to read a file, write a file, or make a network request:
+
+1. If you passed the matching option (`--allow-file-read`, `--allow-file-write` or `--allow-network-access`), the request goes ahead.
+2. If not, and the server is running in an interactive terminal, it stops and asks you. Press <kbd>Y</kbd> to allow it for the rest of the run, or any other key to refuse.
+3. If not, and nobody can be asked (for example under a process manager or in a container), the request is refused.
+
+For files there is one more check. Even with permission, reads and writes only work inside the file scope, which is your home folder unless you change it:
+
+```sh
+pnpm server serve ~/site/project.sb3 --allow-file-read --file-scope ~/site/public --
+```
+
+`--file-scope` takes one or more folders. End the list with `--` when more arguments follow it.
+
+:::warning
+Read access lets a project read any file in the scope, which by default includes your documents, app settings and browser data. Only grant it to projects you trust, and narrow the scope to the folder the project needs.
+
+The scope is checked against the path the project asks for, not where that path really leads. A symbolic link inside the scope that points outside it lets the project reach the file it points to, so keep links out of the folders you allow.
+:::
+
+## Extensions
+
+A project can only load extensions from [extensions.turbowarp.org](https://extensions.turbowarp.org/). Any other extension URL is blocked and a warning is printed.
+
+## Developer mode
+
+With `--dev`, the server also accepts a new project at `/_astro_devServer_updateProj` and restarts it in place. The new project keeps any permissions you already granted.
+
+The server only takes a project when the request's `Origin` header is the AstroBlocks editor's address. Browsers set that header themselves, so other websites can't swap your project, but any other program can send whatever `Origin` it likes. The server listens on every network interface, so anyone who can reach the port can replace the running project.
+
+:::danger
+Only use `--dev` on your own machine, on a network you trust, and with a firewall that keeps the port private. Never combine it with file or network permissions on a server other people can reach.
+:::

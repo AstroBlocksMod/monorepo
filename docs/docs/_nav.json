@@ -1,0 +1,16 @@
+[
+  {
+    "text": "Guide",
+    "link": "/guide/introduction",
+    "activeMatch": "/guide/"
+  },
+  {
+    "text": "Server mode",
+    "link": "/server/",
+    "activeMatch": "/server/"
+  },
+  {
+    "text": "Open the editor",
+    "link": "https://astroblocks.hermits.cc/"
+  }
+]

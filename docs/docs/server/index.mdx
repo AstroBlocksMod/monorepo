@@ -1,0 +1,67 @@
+# Server mode
+
+Server mode runs an AstroBlocks project without the editor, under Node, as a web server. The project decides how to answer each request with the blocks in the [Web Server extension](./blocks).
+
+There is no stage in server mode. Anything a sprite says with a **say** block is printed to the terminal, which makes it handy for logging.
+
+## Requirements
+
+Server mode runs from a copy of the repository. You need [Node.js](https://nodejs.org/) v24 and [pnpm](https://pnpm.io/).
+
+```sh
+git clone https://github.com/AstroBlocksMod/monorepo.git
+cd monorepo
+pnpm install
+pnpm --filter @turbowarp/scratch-storage run build
+```
+
+The last step builds the asset loader the server uses. It only needs to run once, and again after you pull changes to `packages/scratch-storage`.
+
+## Making a project
+
+1. Open the editor and add the **Web Server** extension from the extension library.
+2. Build your scripts with its blocks. A minimal server answers one page:
+
+   ```text
+   when page [/] is requested
+   return content [Hello AstroBlocks!]
+   ```
+
+3. Save the project to your computer as an `.sb3` file.
+
+The Web Server blocks do nothing in the editor, so the project still runs there as usual.
+
+## Running it
+
+```sh
+pnpm server serve /path/to/project.sb3 8080
+```
+
+The port is optional and defaults to 8080. When the server is up it prints `AstroBlocks on server has started at port 8080.` and you can open `http://localhost:8080/` in a browser. The project's green flag scripts run when it starts.
+
+:::tip
+`pnpm server` runs inside `packages/scratch-vm`, so relative paths are resolved from there. Use an absolute path, or one that starts with `~` for your home folder. To use paths relative to your own folder, call the CLI directly:
+
+```sh
+node /path/to/monorepo/packages/scratch-vm/src/server/cli.js serve project.sb3
+```
+
+:::
+
+## Options
+
+| Option                      | What it does                                                                              |
+| --------------------------- | ----------------------------------------------------------------------------------------- |
+| `--allow-file-read`         | Lets the project read files inside the file scope.                                        |
+| `--allow-file-write`        | Lets the project write files inside the file scope.                                       |
+| `--allow-network-access`    | Lets the project make network requests.                                                   |
+| `--file-scope <folders...>` | Sets the folders that file reads and writes are limited to. Defaults to your home folder. |
+| `--dev`, `-D`               | Starts in developer mode, where a new project can be swapped in without restarting.       |
+
+Read [Permissions](./permissions) before turning any of these on.
+
+## Limits
+
+- A request body larger than 10 MB is refused with status 413.
+- A request the project does not answer within 30 seconds gets status 504.
+- If the project file cannot be loaded, the server prints `Failed to load the project. :(` and exits with code 2.

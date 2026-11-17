@@ -5,3 +5,9 @@
 </p>
 
 <h1 align="center">Block-based programming to the stars!</h1>
+
+<p align="center">
+  <a href="https://astroblocks.hermits.cc/">Open the editor</a> |
+  <a href="https://astroblocks.hermits.cc/docs/">Read the docs</a> |
+  <a href=".github/CONTRIBUTING.md">Contribute</a>
+</p>

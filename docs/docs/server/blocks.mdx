@@ -1,0 +1,51 @@
+# Web Server blocks
+
+The **Web Server** extension holds the blocks a project uses to answer requests in [server mode](./). In the editor there are no requests, so the hats never run, `request headers` gives `{}`, and the other reporters give empty text.
+
+## Handling requests
+
+| Block                           | What it does                                                                                                                           |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `when page [PAGE] is requested` | Runs when a request comes in for that page. The page is the path and query string exactly as requested, such as `/` or `/about?tab=2`. |
+| `when page is not found`        | Runs when no `when page is requested` script matches. The status starts at 404.                                                        |
+
+Blocks below a hat always refer to the request that started that script.
+
+:::warning
+A script handles one request at a time. If a request comes in while the script for its page is still running (for example, waiting on a `wait` block), that script is skipped and the request goes to `when page is not found` instead. Keep request scripts short, without waits, so they finish before the next request.
+:::
+
+## Building the response
+
+| Block                      | What it does                                                                                                                           |
+| -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `set format to [MIME]`     | Sets the `Content-Type` of the response. The menu has common types, and you can drop in any reporter. The default is `text/plain`.     |
+| `set status to [STATUS]`   | Sets the HTTP status code. The default is 200, or 404 under `when page is not found`.                                                  |
+| `set headers to [HEADERS]` | Sets extra response headers, written as a JSON object such as `{"Cache-Control": "no-store"}`. Text that is not valid JSON is ignored. |
+| `return content [CONTENT]` | Sends the response and stops the script.                                                                                               |
+
+Set the format, status and headers before `return content`. A request gets exactly one response, so once it is sent the script stops and blocks after `return content` don't run.
+
+Inside a custom block, `return content` sends the response and stops only that custom block. The script that used it carries on with its next block, but any further `return content` for the same request does nothing.
+
+## Reading the request
+
+| Block                         | What it gives                                                     |
+| ----------------------------- | ----------------------------------------------------------------- |
+| `page`                        | The requested path and query string.                              |
+| `ip address`                  | The address of the client that made the request.                  |
+| `request headers`             | The request headers as a JSON object. Header names are lowercase. |
+| `request data`                | The request body as text.                                         |
+| `request method is [METHOD]?` | Whether the request used that method, such as `GET` or `POST`.    |
+
+## Files
+
+These need the file permissions described in [Permissions](./permissions). Without them, reads give empty text and writes do nothing. A refused read or write is not reported as a failure, so `failed to access file?` stays false.
+
+| Block                       | What it does                                                              |
+| --------------------------- | ------------------------------------------------------------------------- |
+| `read file from [PATH]`     | Gives the contents of a text file.                                        |
+| `write [CONTENT] to [PATH]` | Writes text to a file, replacing what was there.                          |
+| `failed to access file?`    | Whether the last read or write ran into an error, such as a missing file. |
+
+Paths starting with `~` are inside your home folder.

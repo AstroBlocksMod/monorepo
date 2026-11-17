@@ -1,14 +1,14 @@
 # Contributing
 
 AstroBlocks is a pnpm workspace holding the Scratch editor and its
-supporting libraries under `packages/`. Changes to any of them land in this
-repository.
+supporting libraries under `packages/`, plus the docs site under `docs/`.
+Changes to any of them land in this repository.
 
 ## Setup
 
 You need [Node.js](https://nodejs.org/) v24 (see [`.nvmrc`](../.nvmrc)),
-[pnpm](https://pnpm.io/), and Python 3 — `scratch-blocks` shells out to
-`build.py` to compile its Blockly messages.
+[pnpm](https://pnpm.io/), and Python 3, which `scratch-blocks` uses to run
+`build.py` and compile its Blockly messages.
 
 ```sh
 pnpm install
@@ -18,7 +18,7 @@ pnpm start      # runs the editor at http://localhost:8601
 `pnpm start` builds `scratch-gui` from source, and `scratch-gui` resolves
 `scratch-vm`, `scratch-render`, and `scratch-paint` from their `src/`
 directories, so edits to those show up on reload. `scratch-blocks` and
-`scratch-storage` are consumed from their build output instead — rebuild them
+`scratch-storage` are consumed from their build output instead, so rebuild them
 after changing either:
 
 ```sh
@@ -41,12 +41,26 @@ To build a single package along with its workspace dependencies, use
 
 1. Branch from `main`.
 2. Make your change, and add tests where the package has a suite to add them to.
-3. Run `pnpm lint` and `pnpm test` for the packages you touched. CI runs the
-   same scripts per package — see [`workflows/ci.yml`](workflows/ci.yml).
-4. Open a pull request against `main` and fill in the template.
+3. Run `pnpm lint` and `pnpm test` for the packages you touched. For `docs`,
+   run `check-format`, `typecheck` and `build` instead. CI runs the same scripts
+   per package, listed in [`workflows/ci.yml`](workflows/ci.yml).
+4. If the change is something users see, update the docs site to match.
+5. Open a pull request against `main` and fill in the template.
 
 Pushes to `main` deploy the editor to GitHub Pages automatically via
-[`workflows/deploy.yml`](workflows/deploy.yml).
+[`workflows/deploy.yml`](workflows/deploy.yml), with the docs site under `/docs/`.
+
+## Docs
+
+The docs site is built with [Rspress](https://rspress.rs/) from `docs/`. Pages
+are `.mdx` files under `docs/docs/`, and each section's sidebar order comes from
+its `_meta.json`.
+
+```sh
+pnpm --filter astroblocks-docs run dev     # live preview
+pnpm --filter astroblocks-docs run build   # what CI and deploy run
+pnpm --filter astroblocks-docs run format  # Prettier, which CI checks
+```
 
 ## A note on the toolchain
 

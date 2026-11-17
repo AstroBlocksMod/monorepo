@@ -117,6 +117,23 @@ test('an annotated variable is swapped for a typed one', t => {
     t.end();
 });
 
+test('a variable shared by two targets stays shared', t => {
+    const {runtime, service} = makeService();
+    const first = makeTarget(runtime, [['a', 'static count: number', '3']]);
+    const second = {variables: {a: first.variables.a}};
+    runtime.targets.push(second);
+
+    service.applyToProject();
+    t.equal(first.variables.a.astroType, TypeService.NUMBER);
+    t.equal(second.variables.a, first.variables.a, 'both got the one typed variable');
+    first.variables.a.value = 4;
+    t.equal(second.variables.a.value, 4);
+
+    service.releaseProject();
+    t.equal(second.variables.a, first.variables.a, 'and the one plain variable afterwards');
+    t.end();
+});
+
 test('releaseProject makes every variable dynamic again', t => {
     const {runtime, service} = makeService();
     const target = makeTarget(runtime, [['a', 'score: number', 3]]);

@@ -32,7 +32,9 @@ const defaultBuiltinExtensions = {
     // astro: Web server blocks.
     server: () => require('../extensions/astro_server'),
     // astro: Gradual type annotations.
-    astroTypes: () => require('../extensions/astro_types')
+    astroTypes: () => require('../extensions/astro_types'),
+    // astro: Sprites as classes.
+    astroClasses: () => require('../extensions/astro_classes')
 };
 
 /**

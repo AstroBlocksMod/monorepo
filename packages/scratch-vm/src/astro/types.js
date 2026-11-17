@@ -148,6 +148,12 @@ const copyVariableAs = (variable, type) => {
 };
 
 /**
+ * What each replaced variable was replaced with.
+ * @type {WeakMap<Variable, Variable>}
+ */
+const replacements = new WeakMap();
+
+/**
  * Point a variable that has been replaced at its replacement, so that a script still running with the
  * old object reads and writes the one value there is.
  * @param {Variable} replaced The old variable.
@@ -209,10 +215,11 @@ class TypeService {
 
         /**
          * Other places a type can come from, such as the classes in the project. Each is asked in turn
-         * for names that are not built in.
+         * for names that are not built in. The list lives on the runtime so that it can be added to
+         * whether or not annotations are on.
          * @type {Array<{resolve: function(string): ?AstroType, names: function(): Array<string>}>}
          */
-        this.sources = [];
+        this.sources = runtime.astroTypeSources || [];
     }
 
     /**
@@ -287,9 +294,15 @@ class TypeService {
         const variable = target.variables[id];
         const enforced = variable.astroType || null;
         if (type === enforced) return false;
-        const replacement = copyVariableAs(variable, type);
+        // A Variable can be shared by several targets (a static field). They all get the one
+        // replacement, so that it stays shared.
+        let replacement = replacements.get(variable);
+        if (!replacement || (replacement.astroType || null) !== type) {
+            replacement = copyVariableAs(variable, type);
+            replacements.set(variable, replacement);
+            forwardVariable(variable, replacement);
+        }
         target.variables[id] = replacement;
-        forwardVariable(variable, replacement);
         return true;
     }
 

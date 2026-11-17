@@ -15,8 +15,9 @@ const {
     IntermediateRepresentation
 } = require('./intermediate');
 const oldCompilerCompatiblity = require('./old-compiler-compatibility.js');
-// astro: type annotations, see the file for what they are.
+// astro: type annotations and sprites as classes, see the files for what they are.
 const AstroTypes = require('../astro/types');
+const AstroObjects = require('../astro/objects');
 
 /**
  * @fileoverview Generate intermediate representations from Scratch blocks.
@@ -1058,6 +1059,30 @@ class ScriptTreeGenerator {
         const paramNamesIdsAndDefaults = this.blocks.getProcedureParamNamesIdsAndDefaults(procedureCode);
 
         if (paramNamesIdsAndDefaults === null) {
+            // astro: no custom block by that name in this sprite. It may be a call on another object
+            // (see astro/objects.js), which runs through a hidden block of the Classes extension.
+            const foreignCall = AstroObjects.describeForeignCall(this.runtime, block.mutation);
+            if (foreignCall) {
+                const inputs = {};
+                for (const name of Object.keys(foreignCall.inputs)) {
+                    const inputName = foreignCall.inputs[name];
+                    inputs[name] = block.inputs[inputName] ?
+                        this.descendInputOfBlock(block, inputName, true) :
+                        this.createConstantInput('');
+                }
+                return {
+                    opcode: StackOpcode.COMPATIBILITY_LAYER,
+                    inputs: {
+                        opcode: foreignCall.opcode,
+                        id: block.id,
+                        blockType: BlockType.COMMAND,
+                        inputs,
+                        fields: foreignCall.fields,
+                        substacks: {}
+                    },
+                    yields: true
+                };
+            }
             return {opcode: StackOpcode.NOP, yields: false};
         }
 

@@ -1,3 +1,6 @@
+// astro: sprites as classes, see the file for what that means.
+const AstroObjects = require('../astro/objects');
+
 class Scratch3ProcedureBlocks {
     constructor (runtime) {
         /**
@@ -55,6 +58,11 @@ class Scratch3ProcedureBlocks {
         // block is dragged between sprites without the definition.
         // Match Scratch 2.0 behavior and noop.
         if (paramNamesIdsAndDefaults === null) {
+            // astro: it may be a call on another object instead (see astro/objects.js).
+            const foreignCall = AstroObjects.describeForeignCall(util.runtime, args.mutation);
+            if (foreignCall) {
+                return AstroObjects.runForeignCall(foreignCall, args, util);
+            }
             if (isReporter) {
                 return '';
             }

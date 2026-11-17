@@ -114,8 +114,11 @@ class TargetBuilder {
      * @param {Array<object>} body The blocks under the definition.
      * @param {object} [options] Options.
      * @param {boolean} [options.warp] True to run without screen refresh.
-     * @returns {{call: Function, report: Function}} call(...args) makes a block that calls the custom
-     * block, and report(...args) makes one that can be used as an input to read what it returns.
+     * @returns {{call: Function, report: Function, callOn: Function, reportOn: Function, construct: Function}}
+     * call(...args) makes a block that calls the custom block, and report(...args) makes one that can
+     * be used as an input to read what it returns. callOn(object, ...args) and reportOn(object, ...args)
+     * do the same from another sprite, as a method call on an instance. construct(className, ...args)
+     * makes the "new" block for a custom block that is a constructor.
      */
     define (proccode, names, body, {warp = false} = {}) {
         const ids = names.map(() => uid('arg'));
@@ -148,9 +151,28 @@ class TargetBuilder {
             });
             return block('procedures_call', inputs, {}, Object.assign({}, callMutation, extraMutation));
         };
+        // A call on another object is a call block whose first input is the object, or the class.
+        const makeForeignCall = (firstId, foreignCode, first, args, extraMutation) => {
+            const inputs = {[firstId]: first};
+            args.forEach((arg, i) => {
+                inputs[ids[i]] = arg;
+            });
+            return block('procedures_call', inputs, {}, Object.assign({
+                proccode: foreignCode,
+                argumentids: JSON.stringify([firstId].concat(ids)),
+                warp: 'false'
+            }, extraMutation));
+        };
+        const methodCode = `%s ${proccode}`;
+        const constructorCode = `new %s${proccode.slice('constructor'.length)}`;
         return {
             call: (...args) => makeCall(args, {}),
-            report: (...args) => makeCall(args, {return: '1'})
+            report: (...args) => makeCall(args, {return: '1'}),
+            callOn: (object, ...args) => makeForeignCall('astro:self', methodCode, object, args, {}),
+            reportOn: (object, ...args) => makeForeignCall('astro:self', methodCode, object, args, {return: '1'}),
+            construct: (className, ...args) => (
+                makeForeignCall('astro:class', constructorCode, className, args, {return: '1'})
+            )
         };
     }
 

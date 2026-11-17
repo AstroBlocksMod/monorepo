@@ -221,7 +221,15 @@ Blockly.ScratchBlocks.VerticalExtensions.PROCEDURE_CALL_CONTEXTMENU = {
    * @this Blockly.Block
    */
   customContextMenu: function(menuOptions) {
-    menuOptions.push(Blockly.Procedures.makeEditOption(this));
+    // astro: A call to a custom block of another sprite, which is how a method
+    // of another object is called (see scratch-vm/src/astro/objects.js), has
+    // no definition in this workspace. There is nothing for "edit" to open,
+    // and offering it would throw.
+    var definitionWorkspace = this.workspace.isFlyout ?
+        this.workspace.targetWorkspace : this.workspace;
+    if (Blockly.Procedures.getPrototypeBlock(this.getProcCode(), definitionWorkspace)) {
+      menuOptions.push(Blockly.Procedures.makeEditOption(this));
+    }
     if (
       !this.isInFlyout &&
       Blockly.Procedures.USER_CAN_CHANGE_CALL_TYPE &&

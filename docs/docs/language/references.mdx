@@ -1,0 +1,33 @@
+# Reference values
+
+Scratch values are numbers, text and true or false. AstroBlocks adds one more kind: a reference, which stands for something else. An [instance of a class](./classes) is a reference.
+
+A reference can go wherever any other value goes: into a variable, a list or a custom block input. Every block that already exists keeps working with it, because a reference acts as its **label** whenever a block needs one of the old kinds of value.
+
+## The label
+
+Every reference has a label that no other reference has, such as `Enemy #3`. The number counts up for each name and is never reused while the editor stays open.
+
+The label of the sprite on the stage is the sprite's name.
+
+## What existing blocks see
+
+| Where a reference is used                | What happens                                              |
+| ---------------------------------------- | --------------------------------------------------------- |
+| As text, as in **join** or **say**       | Its label                                                 |
+| As a number, as in **+**                 | `0`, like any text that is not a number                   |
+| As a condition, as in **if**             | True, like any text that is not empty                     |
+| **=**                                    | Equal to itself and to its own label, and to nothing else |
+| **&lt;** and **&gt;**                    | Compared by label, as text                                |
+| In a list                                | Kept as it is. **contains** and **item # of** find it     |
+| In a variable or list shown on the stage | Shown as its label                                        |
+
+A reference survives being stored and passed around: **item (1) of [list]** gives back the same reference that was added. It does not survive being turned into text. `join (boss) []` gives the label, which is only text and no longer stands for the instance.
+
+## Saving and sharing
+
+A reference means something only while the project is running.
+
+- **Saving.** A variable or list that holds a reference is saved holding the label as text. What it stood for is not saved.
+- **Cloud variables.** A reference is never sent. Setting a cloud variable to one changes it on your computer only.
+- **Extensions.** A custom extension that runs sandboxed is given the label in place of the reference.

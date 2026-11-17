@@ -1,0 +1,137 @@
+# Classes
+
+A sprite is already close to a class. Its scripts and custom blocks are shared by every copy of it, and each copy has its own position and its own variables. The **Classes** extension lets you use sprites that way on purpose: make instances, give each its own values, and call their custom blocks from any other sprite.
+
+Add it from the extension library.
+
+## How the pieces line up
+
+| In a text language | In AstroBlocks                                   |
+| ------------------ | ------------------------------------------------ |
+| A class            | A sprite                                         |
+| An instance        | A copy of the sprite made with **new**           |
+| A field            | A variable made "for this sprite only"           |
+| A static field     | Such a variable whose name starts with `static ` |
+| The constructor    | A custom block called `constructor`              |
+| A method           | Any other custom block                           |
+| `this`             | The **myself** block                             |
+
+Nothing about the sprite has to change to be used as a class. A sprite that knows nothing about classes still works as one.
+
+## Making an instance
+
+**new [Enemy]** makes an instance of the Enemy sprite and gives it back, so you can keep it in a variable:
+
+```text
+set [boss] to (new [Enemy])
+```
+
+If the sprite has a custom block called `constructor` with inputs, for example `constructor hp (start)`, the Classes category shows a matching block under the sprite's name:
+
+```text
+set [boss] to (new (Enemy) hp (50))
+```
+
+This is what **new** does, in order:
+
+1. It makes the copy. For an ordinary sprite the copy appears on the stage behind the sprite, looking the way the sprite looks right now.
+2. It gives the copy the sprite's variables, each at its starting value: `0`, an empty list, or the starting value of the variable's [type](./types).
+3. It runs the constructor on the copy, with the values you passed.
+4. It gives you the instance.
+
+If the constructor waits, **new** waits for it.
+
+### How this differs from a clone
+
+**create clone of** is unchanged, and clones still work as they always have. The difference is in step 2.
+
+|                        | **create clone of**              | **new**                           |
+| ---------------------- | -------------------------------- | --------------------------------- |
+| Variables start as     | A copy of whoever made the clone | Their starting values, every time |
+| Runs                   | **when I start as a clone**      | The `constructor` custom block    |
+| Gives you the new copy | No                               | Yes                               |
+
+A clone's variables depend on who made it and when. An instance's never do.
+
+Instances on the stage count toward the clone limit, like clones. When the limit is reached **new** gives nothing.
+
+## Fields
+
+Read and change a variable of an instance with:
+
+```text
+([hp] of (boss))
+set [hp] of (boss) to (20)
+```
+
+Use the variable's plain name. For a variable called `static count: number` that is `count`.
+
+Only variables are reachable this way. To work with a list of another instance, give its sprite a custom block that does it.
+
+### Static fields
+
+A "for this sprite only" variable whose name starts with `static ` is shared by the sprite and every instance made with **new**. Change it in one and they all see the change:
+
+```text
+define constructor
+change [static count] by (1)
+```
+
+## Methods
+
+Every custom block of a sprite can be called on one of its instances from anywhere. The Classes category lists them under the sprite's name, each with a slot in front for the instance:
+
+```text
+(boss) take damage (5)
+say ((boss) get hp)
+```
+
+A custom block that has a **return** block in it is listed as a round block that gives the value back.
+
+The custom block runs on the instance. **change x by**, **say** and the sprite's variables all mean the instance's, not the caller's. If the custom block waits, the caller waits for it, the same as when a sprite calls its own custom block.
+
+Calling something that is not an instance, or an instance whose sprite has no custom block by that name, does nothing and gives an empty value. So does calling a method of an instance that has been deleted.
+
+:::warning
+A call keeps the custom block's name. If you rename a custom block, the calls to it in other sprites still use the old name and do nothing until you swap them for the new block from the palette.
+:::
+
+## Other blocks
+
+| Block                    | What it does                                                      |
+| ------------------------ | ----------------------------------------------------------------- |
+| `myself`                 | The instance the script is running on.                            |
+| `(object) is a [Enemy]?` | Whether a value is an instance of a sprite.                       |
+| `class of (object)`      | The name of the sprite a value is an instance of, or nothing.     |
+| `(object) exists?`       | Whether a value is an instance that has not been deleted.         |
+| `delete (object)`        | Deletes an instance. An instance that deletes itself stops there. |
+
+The sprite on the stage counts as an instance of itself, and its name stands for it. `([hp] of [Enemy])` reads the variable of the sprite itself, and `(myself) = [Enemy]` is true in the sprite and false in its instances. The sprite on the stage cannot be deleted.
+
+Clones made with **create clone of** are instances too: **myself** works in them, and so does everything else on this page.
+
+## Data classes
+
+Some classes are only data and logic, like a point or an inventory, and should never show up on the stage. Put a **data class** block anywhere in the sprite's code area to make it one.
+
+Instances of a data class:
+
+- are never on the stage, and cannot be shown
+- do not count toward the clone limit
+- are cleaned up on their own once no variable or list holds them any more
+
+Their methods can still use any block. Motion blocks change the instance's own position numbers, and looks blocks that would draw something do nothing.
+
+The sprite of a data class is still an ordinary sprite on the stage. Hide it if you do not want to see it.
+
+## Classes as types
+
+With the [Types](./types) extension, a sprite's name is a type. A variable called `target: Enemy` holds an instance of Enemy or nothing: storing anything else in it stores nothing.
+
+The editor only checks `number`, `text` and `boolean` slots when you drag. It does not refuse a block for having the wrong class.
+
+## What an instance is as a value
+
+An instance can go anywhere a value can: in a variable, in a list, into a custom block input. Blocks that expect text or a number see its label, such as `Enemy #3`. [Reference values](./references) has the details.
+
+Instances are not saved with the project, the same as clones are not. A variable that holds one when you save is saved holding the label as plain text.

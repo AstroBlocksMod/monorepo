@@ -52,6 +52,7 @@ import gdxforConnectionSmallIconURL from './gdxfor/gdxfor-small.svg';
 import twIcon from './tw/tw.svg';
 import serverIcon from './server/server.svg';
 import astroTypesIcon from './astroTypes/types.svg';
+import astroClassesIcon from './astroClasses/classes.svg';
 import customExtensionIcon from './custom/custom.svg';
 import returnIcon from './custom/return.svg';
 import galleryIcon from './gallery/gallery.svg';
@@ -416,6 +417,28 @@ export default [
                 defaultMessage="Give a variable or a custom block input a type by ending its name with one, like &quot;score: number&quot;."
                 description="Description for the 'Types' extension"
                 id="astro.extension.types.description"
+            />
+        ),
+        incompatibleWithScratch: true,
+        tags: ['astro'],
+        featured: true
+    },
+    {
+        name: (
+            <FormattedMessage
+                defaultMessage="Classes"
+                description="Name of the 'Classes' extension"
+                id="astro.extension.classes.name"
+            />
+        ),
+        extensionId: 'astroClasses',
+        iconURL: astroClassesIcon,
+        description: (
+            <FormattedMessage
+                // eslint-disable-next-line max-len
+                defaultMessage="Use sprites as classes: make instances with their own variables and call their custom blocks from anywhere."
+                description="Description for the 'Classes' extension"
+                id="astro.extension.classes.description"
             />
         ),
         incompatibleWithScratch: true,

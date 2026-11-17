@@ -554,6 +554,19 @@ class Runtime extends EventEmitter {
         this.astroTypes = null;
 
         /**
+         * astro: Where type names other than the built in ones come from, such as the classes in the
+         * project. Each entry resolves a name to a type and lists the names it knows.
+         * @type {Array<{resolve: function(string): ?object, names: function(): Array<string>}>}
+         */
+        this.astroTypeSources = [];
+
+        /**
+         * astro: Sprites as classes. Null until the Classes extension is loaded.
+         * @type {?import('../astro/objects')}
+         */
+        this.astroObjects = null;
+
+        /**
          * Total number of scratch-storage load() requests since the runtime was created or cleared.
          */
         this.totalAssetRequests = 0;

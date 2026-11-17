@@ -17,8 +17,9 @@ const MathUtil = require('../util/math-util');
 const StringUtil = require('../util/string-util');
 const VariableUtil = require('../util/variable-util');
 const compress = require('./tw-compress-sb3');
-// astro: type annotations, see the file for what they are.
+// astro: type annotations and sprites as classes, see the files for what they are.
 const AstroTypes = require('../astro/types');
+const AstroObjects = require('../astro/objects');
 
 const {loadCostume} = require('../import/load-costume.js');
 const {loadSound} = require('../import/load-sound.js');
@@ -296,6 +297,16 @@ const getExtensionIdForOpcode = function (opcode) {
 };
 
 /**
+ * astro: getExtensionIdForOpcode() for a whole block. A call on another object has the opcode of a
+ * custom block call, but it needs the Classes extension (see astro/objects.js).
+ * @param {!object} block The block to examine for extension.
+ * @return {?string} The extension ID, if it exists and is not a core extension.
+ */
+const getExtensionIdForBlock = function (block) {
+    return AstroObjects.extensionForBlock(block) || getExtensionIdForOpcode(block.opcode);
+};
+
+/**
  * @param {Set<string>|string[]} extensionIDs Project extension IDs
  * @param {Runtime} runtime
  * @returns {Record<string, string>|null} extension ID -> URL map, or null if no custom extensions.
@@ -342,7 +353,7 @@ const serializeBlocks = function (blocks) {
     for (const blockID in blocks) {
         if (!Object.prototype.hasOwnProperty.call(blocks, blockID)) continue;
         obj[blockID] = serializeBlock(blocks[blockID], blocks);
-        const extensionID = getExtensionIdForOpcode(blocks[blockID].opcode);
+        const extensionID = getExtensionIdForBlock(blocks[blockID]);
         if (extensionID) {
             extensionIDs.add(extensionID);
         }
@@ -411,7 +422,7 @@ const deserializeStandaloneBlocks = blocks => {
 const serializeStandaloneBlocks = (blocks, runtime) => {
     const extensionIDs = new Set();
     for (const block of blocks) {
-        const extensionID = getExtensionIdForOpcode(block.opcode);
+        const extensionID = getExtensionIdForBlock(block);
         if (extensionID) {
             extensionIDs.add(extensionID);
         }
@@ -1205,7 +1216,7 @@ const parseScratchObject = function (object, runtime, extensions, zip, assets) {
             blocks.createBlock(blockJSON);
 
             // If the block is from an extension, record it.
-            const extensionID = getExtensionIdForOpcode(blockJSON.opcode);
+            const extensionID = getExtensionIdForBlock(blockJSON);
             if (extensionID) {
                 extensions.extensionIDs.add(extensionID);
             }

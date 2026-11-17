@@ -4,6 +4,8 @@ const maybeFormatMessage = require('../util/maybe-format-message');
 
 const BlockType = require('./block-type');
 const SecurityManager = require('./tw-security-manager');
+// astro: reference values, see the file for what they are.
+const Reference = require('../astro/reference');
 
 // These extensions are currently built into the VM repository but should not be loaded at startup.
 // TODO: move these out into a separate repository?
@@ -559,7 +561,8 @@ class ExtensionManager {
             const callBlockFunc = (() => {
                 if (dispatch._isRemoteService(serviceName)) {
                     return (args, util, realBlockInfo) =>
-                        dispatch.call(serviceName, funcName, args, util, realBlockInfo)
+                        // astro: a reference cannot be copied into a sandbox, so its label is sent instead.
+                        dispatch.call(serviceName, funcName, Reference.toPlainArguments(args), util, realBlockInfo)
                             .then(result => {
                                 // Scratch is only designed to handle these types.
                                 // If any other value comes in such as undefined, null, an object, etc.

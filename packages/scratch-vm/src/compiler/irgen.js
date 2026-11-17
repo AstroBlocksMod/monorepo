@@ -1520,7 +1520,10 @@ class IRGenerator {
      * @returns {IntermediateRepresentation} Intermediate representation.
      */
     generate () {
-        const entry = this.generateScriptTree(new ScriptTreeGenerator(this.thread), this.thread.topBlock);
+        // astro: a thread that calls a custom block from outside a script brings its own entry script,
+        // as there are no blocks to walk for it (see astro/call.js).
+        const entryGenerator = this.thread.astroEntry || new ScriptTreeGenerator(this.thread);
+        const entry = this.generateScriptTree(entryGenerator, this.thread.topBlock);
 
         // Compile any required procedures.
         // As procedures can depend on other procedures, this process may take several iterations.

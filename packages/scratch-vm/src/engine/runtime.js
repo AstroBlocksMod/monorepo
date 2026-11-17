@@ -23,6 +23,8 @@ const FontManager = require('./tw-font-manager');
 const fetchWithTimeout = require('../util/fetch-with-timeout');
 const platform = require('./tw-platform.js');
 const safeStringify = require('../util/tw-safe-stringify.js');
+// astro: reference values, see the file for what they are.
+const Reference = require('../astro/reference');
 const MonitorState = require('./tw-monitor-state.js');
 
 // Virtual I/O devices.
@@ -3127,7 +3129,8 @@ class Runtime extends EventEmitter {
         if (target === this.getEditingTarget()) {
             this.emit(Runtime.VISUAL_REPORT, {
                 id: blockId,
-                value: safeStringify(value)
+                // astro: a reference is shown as its label, without the quotes JSON would add.
+                value: safeStringify(Reference.toPlain(value))
             });
         }
     }
@@ -3153,6 +3156,13 @@ class Runtime extends EventEmitter {
      */
     requestUpdateMonitor (delta) {
         delta = MonitorRecord.externalDeltaToJS(delta);
+        // astro: the editor draws monitor values itself and only knows primitives and lists of them.
+        if (typeof delta.value === 'object' && delta.value !== null) {
+            const plainValue = Reference.toPlain(delta.value);
+            if (plainValue !== delta.value) {
+                delta = Object.assign({}, delta, {value: plainValue});
+            }
+        }
         const id = delta.id;
         if (this._monitorState.has(id)) {
             this._monitorState.set(id, delta);

@@ -238,6 +238,20 @@ class Thread {
             status: null, // Initialized by the request listener hat.
             headers: '{}'
         };
+
+        /**
+         * astro: Set on a thread that runs one custom block for a call made from outside the script
+         * (see astro/call.js). Holds the values passed in and receives the value returned.
+         * @type {?{values: Array<*>, value: *}}
+         */
+        this.astroCall = null;
+
+        /**
+         * astro: The compiler asks this for the thread's entry script instead of walking the blocks
+         * under topBlock. Set together with astroCall.
+         * @type {?{generate: function(string): import('../compiler/intermediate').IntermediateScript}}
+         */
+        this.astroEntry = null;
     }
 
     /**

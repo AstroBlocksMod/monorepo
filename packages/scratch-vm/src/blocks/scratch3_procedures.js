@@ -97,6 +97,10 @@ class Scratch3ProcedureBlocks {
         // If used outside of a custom block, there may be no stackframe.
         if (util.thread.peekStackFrame()) {
             util.stackFrame.returnValue = args.VALUE;
+        } else if (util.thread.astroCall) {
+            // astro: the custom block was called from outside a script (see astro/call.js), so there is
+            // no calling block left on the stack to hand the value to.
+            util.thread.astroCall.value = args.VALUE;
         }
     }
 

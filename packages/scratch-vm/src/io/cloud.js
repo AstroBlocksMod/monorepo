@@ -1,5 +1,7 @@
 const Variable = require('../engine/variable');
 const log = require('../util/log');
+// astro: reference values, see the file for what they are.
+const Reference = require('../astro/reference');
 
 class Cloud {
     /**
@@ -106,6 +108,10 @@ class Cloud {
      * @param {string | number} value The value to update the variable with
      */
     requestUpdateVariable (name, value) {
+        // astro: a reference means nothing outside the running project, so it never goes to the cloud.
+        if (Reference.isReference(value)) {
+            return;
+        }
         if (this.provider) {
             this.provider.updateVariable(name, value);
         }

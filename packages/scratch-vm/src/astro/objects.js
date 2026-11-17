@@ -28,6 +28,7 @@ const {callProcedure} = require('./call');
 const Variable = require('../engine/variable');
 const RenderedTarget = require('../sprites/rendered-target');
 const {InputType} = require('../compiler/enums');
+const {parseAnnotation} = require('./types');
 
 /** Name of the custom block that runs when an instance is made. */
 const CONSTRUCTOR = 'constructor';
@@ -58,6 +59,19 @@ const CONSTRUCT_OPCODE = `${EXTENSION_ID}_construct`;
 
 /** Opcode of the block that marks a sprite as a data class. */
 const DATA_CLASS_OPCODE = `${EXTENSION_ID}_dataClass`;
+
+/*
+ * Protocols. A protocol is a sprite too, marked with a "protocol" block. Its custom blocks and
+ * variables are not something to run or to store in: they are the list of what a sprite must have to
+ * conform. A sprite says that it conforms with a "conforms to" block, and it does conform once it
+ * also has everything on the list. The blocks belong to the Protocols extension.
+ */
+
+/** Opcode of the block that marks a sprite as a protocol. */
+const PROTOCOL_OPCODE = 'astroProtocols_protocol';
+
+/** Opcode of the block with which a sprite says that it conforms to a protocol. */
+const CONFORMS_TO_OPCODE = 'astroProtocols_conformsTo';
 
 /**
  * @param {?object} mutation The mutation of a procedures_call block.
@@ -146,6 +160,15 @@ const fieldNameOf = name => {
     return result;
 };
 
+/**
+ * @param {string} name A variable name like "static count: number".
+ * @returns {?string} The type written at the end of it, like "number", or null if there is none.
+ */
+const fieldTypeNameOf = name => {
+    const annotation = parseAnnotation(String(name));
+    return annotation ? annotation.typeName : null;
+};
+
 const isStaticName = name => {
     const trimmed = String(name).trim();
     return trimmed.startsWith(STATIC_PREFIX);
@@ -185,6 +208,8 @@ const containsReturn = (blocks, blockId) => {
 /**
  * @typedef {object} ClassDescription
  * @property {boolean} isData True if instances stay off the stage.
+ * @property {boolean} isProtocol True if the sprite is a protocol and not a class to make instances of.
+ * @property {Array<string>} adopted The names of the protocols the sprite says it conforms to.
  * @property {?MethodDescription} initializer The custom block called "constructor", which runs when
  * an instance is made.
  * @property {Array<MethodDescription>} methods Every other custom block.
@@ -202,13 +227,21 @@ const describeClass = sprite => {
 
     const description = {
         isData: false,
+        isProtocol: false,
+        adopted: [],
         initializer: null,
         methods: []
     };
     for (const scriptId of blocks.getScripts()) {
         const topBlock = blocks.getBlock(scriptId);
-        if (topBlock && topBlock.opcode === DATA_CLASS_OPCODE) {
+        if (!topBlock) continue;
+        if (topBlock.opcode === DATA_CLASS_OPCODE) {
             description.isData = true;
+        } else if (topBlock.opcode === PROTOCOL_OPCODE) {
+            description.isProtocol = true;
+        } else if (topBlock.opcode === CONFORMS_TO_OPCODE && topBlock.fields.PROTOCOL) {
+            const protocolName = String(topBlock.fields.PROTOCOL.value);
+            if (!description.adopted.includes(protocolName)) description.adopted.push(protocolName);
         }
     }
 
@@ -244,6 +277,15 @@ const describeClass = sprite => {
  * @returns {string} A proccode like "new %s hp %s", whose first input is the class.
  */
 const constructorCallCode = constructorCode => `new %s${constructorCode.slice(CONSTRUCTOR.length)}`;
+
+/**
+ * Write a custom block's text the way it reads on the block, for showing it to people.
+ * @param {string} procedureCode A proccode like "take damage %s".
+ * @returns {string} The same with a slot drawn for each input, like "take damage ( )".
+ */
+const readableProcedureCode = procedureCode => procedureCode
+    .replace(/%b/g, '< >')
+    .replace(/%[sn]/g, '( )');
 
 class ObjectService {
     /**
@@ -308,16 +350,18 @@ class ObjectService {
     }
 
     /**
-     * @param {import('../sprites/sprite')} sprite A class.
-     * @returns {import('./types').AstroType} The type whose values are the instances of the class.
-     * A variable of this type holds an instance of the class or nothing.
+     * @param {import('../sprites/sprite')} sprite A class or a protocol.
+     * @returns {import('./types').AstroType} The type whose values are the instances of the class, or
+     * the instances of every class that conforms to the protocol. A variable of this type holds one
+     * of those or nothing.
      */
     typeOfClass (sprite) {
         let type = this.classTypes.get(sprite);
         if (!type) {
             const accepts = value => {
                 const reference = this.resolve(value);
-                return !!reference && reference.target.sprite === sprite;
+                if (!reference) return false;
+                return reference.target.sprite === sprite || this.conformsTo(reference.target.sprite, sprite);
             };
             type = {
                 get name () {
@@ -403,12 +447,14 @@ class ObjectService {
      * @param {Array<*>} args Values for the constructor's inputs.
      * @param {?import('../engine/block-utility')} util The block utility of the block asking.
      * @returns {InstanceReference|string|Promise<InstanceReference>} The new instance, or '' if the
-     * clone limit is reached. A promise if the constructor waits.
+     * clone limit is reached or the sprite is a protocol. A promise if the constructor waits.
      */
     instantiate (sprite, args, util) {
         const original = sprite.clones[0];
         if (!original) return '';
         const description = describeClass(sprite);
+        // A protocol only says what other sprites must have. There is nothing to make one of.
+        if (description.isProtocol) return '';
 
         let target;
         if (description.isData) {
@@ -500,6 +546,91 @@ class ObjectService {
     }
 
     /**
+     * @returns {Array<import('../sprites/sprite')>} Every sprite that is a protocol.
+     */
+    protocols () {
+        return this.classes().filter(sprite => describeClass(sprite).isProtocol);
+    }
+
+    /**
+     * Compare a sprite with a protocol.
+     * @param {import('../sprites/sprite')} sprite The sprite that may conform.
+     * @param {import('../sprites/sprite')} protocol The protocol.
+     * @returns {{declared: boolean, missing: Array<{kind: string, name: string}>}} Whether the sprite says
+     * that it conforms, and what the protocol asks for that the sprite does not have: custom blocks
+     * (kind "method", name is the proccode) and variables (kind "field", name is the variable's name
+     * in the protocol).
+     */
+    conformance (sprite, protocol) {
+        const description = describeClass(sprite);
+        const missing = [];
+
+        const methods = new Set(description.methods.map(method => method.procedureCode));
+        for (const required of describeClass(protocol).methods) {
+            if (!methods.has(required.procedureCode)) {
+                missing.push({kind: 'method', name: required.procedureCode});
+            }
+        }
+
+        // A field is asked for by name, by whether it is a variable or a list, and by type if the
+        // protocol gives it one.
+        const fields = Object.values(sprite.clones[0].variables);
+        for (const required of Object.values(protocol.clones[0].variables)) {
+            if (required.type === Variable.BROADCAST_MESSAGE_TYPE) continue;
+            const requiredType = fieldTypeNameOf(required.name);
+            const found = fields.some(field => (
+                field.type === required.type &&
+                fieldNameOf(field.name) === fieldNameOf(required.name) &&
+                (requiredType === null || fieldTypeNameOf(field.name) === requiredType)
+            ));
+            if (!found) {
+                missing.push({kind: 'field', name: required.name});
+            }
+        }
+
+        return {
+            declared: description.adopted.includes(protocol.name),
+            missing
+        };
+    }
+
+    /**
+     * @param {import('../sprites/sprite')} sprite A sprite.
+     * @param {import('../sprites/sprite')} protocol A sprite that may be a protocol.
+     * @returns {boolean} True if the second sprite is a protocol, and the first says that it conforms
+     * to it and has everything the protocol asks for.
+     */
+    conformsTo (sprite, protocol) {
+        if (!describeClass(protocol).isProtocol) return false;
+        const {declared, missing} = this.conformance(sprite, protocol);
+        return declared && missing.length === 0;
+    }
+
+    /**
+     * Find every sprite that says it conforms to a protocol but does not.
+     * @returns {Array<{className: string, protocolName: string, isUnknown: boolean, missing: Array<object>}>}
+     * One entry for each such sprite and protocol. isUnknown is true if there is no protocol by that
+     * name. Otherwise missing lists what the sprite lacks, as conformance() does.
+     */
+    protocolProblems () {
+        const problems = [];
+        for (const sprite of this.classes()) {
+            for (const protocolName of describeClass(sprite).adopted) {
+                const protocol = this.classNamed(protocolName);
+                if (!protocol || !describeClass(protocol).isProtocol) {
+                    problems.push({className: sprite.name, protocolName, isUnknown: true, missing: []});
+                    continue;
+                }
+                const {missing} = this.conformance(sprite, protocol);
+                if (missing.length > 0) {
+                    problems.push({className: sprite.name, protocolName, isUnknown: false, missing});
+                }
+            }
+        }
+        return problems;
+    }
+
+    /**
      * @param {object} block A block as the VM or a project file stores it.
      * @returns {?string} The ID of the Classes extension if the block is a call on another object.
      * Such a block has the opcode of a custom block call, so nothing else says that the project
@@ -582,6 +713,7 @@ ObjectService.InstanceReference = InstanceReference;
 ObjectService.describeClass = describeClass;
 ObjectService.constructorCallCode = constructorCallCode;
 ObjectService.fieldNameOf = fieldNameOf;
+ObjectService.readableProcedureCode = readableProcedureCode;
 ObjectService.CONSTRUCTOR = CONSTRUCTOR;
 ObjectService.EXTENSION_ID = EXTENSION_ID;
 ObjectService.SELF_ARGUMENT_ID = SELF_ARGUMENT_ID;

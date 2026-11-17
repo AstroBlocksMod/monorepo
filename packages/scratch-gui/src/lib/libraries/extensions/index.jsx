@@ -53,6 +53,7 @@ import twIcon from './tw/tw.svg';
 import serverIcon from './server/server.svg';
 import astroTypesIcon from './astroTypes/types.svg';
 import astroClassesIcon from './astroClasses/classes.svg';
+import astroProtocolsIcon from './astroProtocols/protocols.svg';
 import customExtensionIcon from './custom/custom.svg';
 import returnIcon from './custom/return.svg';
 import galleryIcon from './gallery/gallery.svg';
@@ -439,6 +440,28 @@ export default [
                 defaultMessage="Use sprites as classes: make instances with their own variables and call their custom blocks from anywhere."
                 description="Description for the 'Classes' extension"
                 id="astro.extension.classes.description"
+            />
+        ),
+        incompatibleWithScratch: true,
+        tags: ['astro'],
+        featured: true
+    },
+    {
+        name: (
+            <FormattedMessage
+                defaultMessage="Protocols"
+                description="Name of the 'Protocols' extension"
+                id="astro.extension.protocols.name"
+            />
+        ),
+        extensionId: 'astroProtocols',
+        iconURL: astroProtocolsIcon,
+        description: (
+            <FormattedMessage
+                // eslint-disable-next-line max-len
+                defaultMessage="Say what custom blocks and variables a sprite must have, and treat every sprite that has them the same way."
+                description="Description for the 'Protocols' extension"
+                id="astro.extension.protocols.description"
             />
         ),
         incompatibleWithScratch: true,

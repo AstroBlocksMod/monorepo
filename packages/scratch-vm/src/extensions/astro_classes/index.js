@@ -357,8 +357,9 @@ class AstroClasses {
     }
 
     isA ({OBJECT, CLASS}) {
-        const reference = this.service.resolve(OBJECT);
-        return !!reference && reference.typeName === Cast.toString(CLASS);
+        // The type of a sprite takes its instances, and for a protocol the instances that conform.
+        const sprite = this.service.classNamed(Cast.toString(CLASS));
+        return !!sprite && this.service.typeOfClass(sprite).accepts(OBJECT);
     }
 
     classOf ({OBJECT}) {

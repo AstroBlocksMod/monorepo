@@ -1,0 +1,88 @@
+# Protocols
+
+A protocol is a list of what a sprite must have: these custom blocks, these variables. Any sprite that has them can conform to the protocol, and code that works with "anything that conforms" then works with all of those sprites, however different they are otherwise.
+
+An Enemy, a Barrel and a Shield have nothing in common except that each can take damage. A `Damageable` protocol says that, and a script can deal damage to any of them without knowing which one it has.
+
+The **Protocols** extension builds on [Classes](./classes), and adding it adds Classes too.
+
+## Writing a protocol
+
+A protocol is a sprite with a **protocol** block in its code area.
+
+Everything else in that sprite is the list of requirements:
+
+- each custom block is one that a conforming sprite must also have
+- each "for this sprite only" variable or list is one that a conforming sprite must also have
+
+Only the definitions matter. What is under a custom block's **define** in a protocol never runs, so it can be left empty.
+
+```text
+protocol
+
+define take damage (amount)
+```
+
+A protocol cannot be made an instance of. **new [Damageable]** gives nothing.
+
+## Conforming
+
+A sprite conforms to a protocol when both of these are true:
+
+1. It says so, with a **conforms to [Damageable]** block in its code area.
+2. It has everything the protocol asks for.
+
+A sprite can conform to several protocols, with one **conforms to** block for each.
+
+### What counts as having something
+
+| The protocol has                      | The sprite needs                                               |
+| ------------------------------------- | -------------------------------------------------------------- |
+| A custom block `take damage (amount)` | A custom block with the same text and the same kinds of inputs |
+| A variable `hp`                       | A variable called `hp`, with any type or none                  |
+| A variable `hp: number`               | A variable called `hp` with the type `number`                  |
+| A list `items`                        | A list called `items`                                          |
+
+Input names do not have to match. A return type is part of a custom block's text, so `area: number` in the protocol needs `area: number` in the sprite.
+
+### When something is missing
+
+A sprite that says it conforms but lacks something does not conform. The Protocols category lists every such sprite with what it still needs, and the list updates as you edit:
+
+```text
+Ghost does not conform to Damageable yet. It needs:
+the custom block "take damage ( )"
+the variable "hp: number"
+```
+
+The project still runs in the meantime.
+
+## Using a protocol
+
+### Calling its custom blocks
+
+The Classes category lists the protocol's custom blocks under the protocol's name, each with a slot for the instance, the same as for any sprite. The call goes to whichever sprite the instance belongs to:
+
+```text
+(target) take damage (5)
+```
+
+### Checking
+
+| Block                                | What it does                                              |
+| ------------------------------------ | --------------------------------------------------------- |
+| `(object) conforms to [Damageable]?` | Whether a value is an instance of a sprite that conforms. |
+| `(object) is a [Damageable]?`        | The same check, from the Classes category.                |
+
+### As a type
+
+With the [Types](./types) extension, a protocol's name is a type. A variable or custom block input called `target: Damageable` holds an instance of any conforming sprite, or nothing:
+
+```text
+define hit (target: Damageable)
+(target: Damageable) take damage (5)
+```
+
+## Protocols and inheritance
+
+AstroBlocks has no inheritance: a sprite cannot extend another sprite. Protocols cover what inheritance is mostly used for, treating different things the same way, without tying the sprites to each other. Each sprite keeps its own code.

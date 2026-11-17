@@ -34,7 +34,9 @@ const defaultBuiltinExtensions = {
     // astro: Gradual type annotations.
     astroTypes: () => require('../extensions/astro_types'),
     // astro: Sprites as classes.
-    astroClasses: () => require('../extensions/astro_classes')
+    astroClasses: () => require('../extensions/astro_classes'),
+    // astro: Protocols that sprites can conform to.
+    astroProtocols: () => require('../extensions/astro_protocols')
 };
 
 /**

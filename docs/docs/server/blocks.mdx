@@ -9,7 +9,11 @@ The **Web Server** extension holds the blocks a project uses to answer requests 
 | `when page [PAGE] is requested` | Runs when a request comes in for that page. The page is the path and query string exactly as requested, such as `/` or `/about?tab=2`. |
 | `when page is not found`        | Runs when no `when page is requested` script matches. The status starts at 404.                                                        |
 
-Each request is handled by the script that matches it, so blocks below a hat always refer to that request even when several requests come in at once.
+Blocks below a hat always refer to the request that started that script.
+
+:::warning
+A script handles one request at a time. If a request comes in while the script for its page is still running (for example, waiting on a `wait` block), that script is skipped and the request goes to `when page is not found` instead. Keep request scripts short, without waits, so they finish before the next request.
+:::
 
 ## Building the response
 
@@ -34,7 +38,7 @@ Set the format, status and headers before `return content`. A request gets exact
 
 ## Files
 
-These need the file permissions described in [Permissions](./permissions). Without them, reads give empty text and writes do nothing.
+These need the file permissions described in [Permissions](./permissions). Without them, reads give empty text and writes do nothing. A refused read or write is not reported as a failure, so `failed to access file?` stays false.
 
 | Block                       | What it does                                                              |
 | --------------------------- | ------------------------------------------------------------------------- |

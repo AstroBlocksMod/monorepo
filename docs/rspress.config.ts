@@ -16,6 +16,9 @@ export default defineConfig({
   title: "AstroBlocks",
   description:
     "Documentation for AstroBlocks, a Scratch editor built on TurboWarp.",
+  // Both are AstroBlocks' own art, copied from scratch-gui: favicon.ico from
+  // packages/scratch-gui/static/, and rubble.png (Rubble, the mascot) from
+  // packages/scratch-gui/src/lib/default-project/, whose README credits it.
   icon: "/favicon.ico",
   logo: "/rubble.png",
   logoText: "AstroBlocks",

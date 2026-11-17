@@ -54,6 +54,7 @@ import serverIcon from './server/server.svg';
 import astroTypesIcon from './astroTypes/types.svg';
 import astroClassesIcon from './astroClasses/classes.svg';
 import astroProtocolsIcon from './astroProtocols/protocols.svg';
+import astroFunctionsIcon from './astroFunctions/functions.svg';
 import customExtensionIcon from './custom/custom.svg';
 import returnIcon from './custom/return.svg';
 import galleryIcon from './gallery/gallery.svg';
@@ -462,6 +463,28 @@ export default [
                 defaultMessage="Say what custom blocks and variables a sprite must have, and treat every sprite that has them the same way."
                 description="Description for the 'Protocols' extension"
                 id="astro.extension.protocols.description"
+            />
+        ),
+        incompatibleWithScratch: true,
+        tags: ['astro'],
+        featured: true
+    },
+    {
+        name: (
+            <FormattedMessage
+                defaultMessage="Functions"
+                description="Name of the 'Functions' extension"
+                id="astro.extension.functions.name"
+            />
+        ),
+        extensionId: 'astroFunctions',
+        iconURL: astroFunctionsIcon,
+        description: (
+            <FormattedMessage
+                // eslint-disable-next-line max-len
+                defaultMessage="Keep a piece of code in a variable, pass it around and call it later. Use it to change, filter and combine lists."
+                description="Description for the 'Functions' extension"
+                id="astro.extension.functions.description"
             />
         ),
         incompatibleWithScratch: true,

@@ -36,7 +36,9 @@ const defaultBuiltinExtensions = {
     // astro: Sprites as classes.
     astroClasses: () => require('../extensions/astro_classes'),
     // astro: Protocols that sprites can conform to.
-    astroProtocols: () => require('../extensions/astro_protocols')
+    astroProtocols: () => require('../extensions/astro_protocols'),
+    // astro: Functions as values.
+    astroFunctions: () => require('../extensions/astro_functions')
 };
 
 /**

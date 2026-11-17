@@ -15,9 +15,10 @@ const {
     IntermediateRepresentation
 } = require('./intermediate');
 const oldCompilerCompatiblity = require('./old-compiler-compatibility.js');
-// astro: type annotations and sprites as classes, see the files for what they are.
+// astro: type annotations, sprites as classes and first-class functions, see the files for what they are.
 const AstroTypes = require('../astro/types');
 const AstroObjects = require('../astro/objects');
+const AstroFunctions = require('../astro/functions');
 
 /**
  * @fileoverview Generate intermediate representations from Scratch blocks.
@@ -1308,7 +1309,11 @@ class ScriptTreeGenerator {
     descendCompatLayerInput (block) {
         const inputs = {};
         const fields = {};
+        // astro: an input that the block works out itself when it needs it is left alone, such as
+        // the expression a function is made from (see astro/functions.js).
+        const lazyInputs = AstroFunctions.lazyInputsOf(block.opcode);
         for (const name of Object.keys(block.inputs)) {
+            if (lazyInputs.includes(name)) continue;
             inputs[name] = this.descendInputOfBlock(block, name, true);
         }
         for (const name of Object.keys(block.fields)) {

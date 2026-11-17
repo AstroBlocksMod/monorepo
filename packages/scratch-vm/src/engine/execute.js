@@ -3,6 +3,8 @@ const BlocksExecuteCache = require('./blocks-execute-cache');
 const log = require('../util/log');
 const Thread = require('./thread');
 const cast = require('../util/cast');
+// astro: first-class functions, see the file for what they are.
+const AstroFunctions = require('../astro/functions');
 
 /**
  * Single BlockUtility instance reused by execute for every pritimive ran.
@@ -328,6 +330,12 @@ class BlockCached {
 
         // Remove custom_block. It is not part of block execution.
         delete this._inputs.custom_block;
+
+        // astro: neither is an input that the block works out itself when it needs it, such as the
+        // expression a function is made from (see astro/functions.js).
+        for (const lazyInput of AstroFunctions.lazyInputsOf(opcode)) {
+            delete this._inputs[lazyInput];
+        }
 
         if ('BROADCAST_INPUT' in this._inputs) {
             // BROADCAST_INPUT is called BROADCAST_OPTION in the args and is an

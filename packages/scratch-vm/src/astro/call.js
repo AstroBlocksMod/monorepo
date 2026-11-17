@@ -13,11 +13,16 @@
  * never waits finishes before this returns. Otherwise (the custom block waits, the thread could not be
  * compiled, or the calls are nested too deep) the thread joins the runtime's thread list like any other
  * and the caller is given a promise.
+ *
+ * callReporter() does the same for a single reporter block wherever it sits in a script: it works the
+ * block out on a thread of its own and hands back the value. That is what calling a function made
+ * from an expression comes down to.
  */
 
 const Thread = require('../engine/thread');
 const compilerExecute = require('../compiler/jsexecute');
-const {IntermediateScript, IntermediateStack} = require('../compiler/intermediate');
+const {StackOpcode} = require('../compiler/enums');
+const {IntermediateScript, IntermediateStack, IntermediateStackBlock} = require('../compiler/intermediate');
 
 /**
  * Calls run inside calls on the JavaScript stack. Past this depth they are queued as ordinary threads
@@ -183,6 +188,10 @@ const waitForThread = (thread, call) => {
             for (const entry of waiting) {
                 if (isFinished(entry.thread)) {
                     waiting.delete(entry);
+                    // The interpreter leaves what a thread's last block reported on the thread.
+                    if (entry.call.isReporter && !entry.thread.isCompiled && entry.thread.justReported !== null) {
+                        entry.call.value = entry.thread.justReported;
+                    }
                     entry.resolve(entry.call.value);
                 }
             }
@@ -279,7 +288,82 @@ const callProcedure = (target, procedureCode, args, util) => {
     return convertResult(result);
 };
 
+/**
+ * Compile a thread that works out one reporter block, and point the thread at the result.
+ * Leaves thread.isCompiled false if the block cannot be compiled.
+ * @param {Thread} thread The thread of the call. Its top block is the reporter.
+ * @param {object} call The call record.
+ */
+const compileReporter = (thread, call) => {
+    // Required here because the compiler requires this file.
+    const {ScriptTreeGenerator} = require('../compiler/irgen');
+
+    // The entry script returns the reporter's value. Marking it as a procedure is what makes the
+    // compiler write a "return" for it. See the astro hook in IRGenerator.generate().
+    thread.astroEntry = {
+        generate: topBlockId => {
+            const generator = new ScriptTreeGenerator(thread);
+            const script = generator.script;
+            thread.blockContainer.populateProcedureCache();
+            script.topBlockId = topBlockId;
+            script.isProcedure = true;
+            const value = generator.descendInput(thread.blockContainer.getBlock(topBlockId));
+            script.yields = true;
+            script.stack = new IntermediateStack([
+                new IntermediateStackBlock(StackOpcode.PROCEDURE_RETURN, {value})
+            ]);
+            return script;
+        }
+    };
+    thread.tryCompile();
+    if (!thread.isCompiled) return;
+
+    const running = thread.generator;
+    thread.generator = {
+        next () {
+            const step = running.next();
+            if (step.done) {
+                call.value = typeof step.value === 'undefined' ? '' : step.value;
+                thread.target.runtime.sequencer.retireThread(thread);
+            }
+        }
+    };
+};
+
+/**
+ * Work out a reporter block on a target, from outside the script the block is in.
+ * @param {import('../engine/target')} target The target to run the block on.
+ * @param {string} blockId ID of a reporter block among the target's blocks.
+ * @param {Array<*>} args Values the block and the blocks in it can read from thread.astroCall.values.
+ * @param {?import('../engine/block-utility')} [util] The block utility of the block making the call.
+ * @returns {*|Promise<*>} What the block reported, or a promise for it if it had to wait. '' if there
+ * is no such block.
+ */
+const callReporter = (target, blockId, args, util) => {
+    const blocks = target.blocks;
+    if (!blocks.getBlock(blockId)) {
+        return '';
+    }
+
+    const call = {
+        values: args,
+        value: '',
+        isReporter: true
+    };
+    const thread = new Thread(blockId);
+    thread.target = target;
+    thread.blockContainer = blocks;
+    thread.astroCall = call;
+    thread.pushStack(blockId);
+
+    if (target.runtime.compilerOptions.enabled) {
+        compileReporter(thread, call);
+    }
+    return runThread(thread, call, util);
+};
+
 module.exports = {
     callProcedure,
+    callReporter,
     MAX_NESTED_CALLS
 };

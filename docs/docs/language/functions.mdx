@@ -1,0 +1,96 @@
+# Functions
+
+A function is a piece of code that you can hold on to. You can keep it in a variable, hand it to a custom block, and call it later, as often as you like. The **Functions** extension adds functions as values, and blocks that use them to work through lists.
+
+Add it from the extension library.
+
+## Making a function
+
+### From blocks
+
+**function ( )** turns the blocks in its slot into a function. The slot is not worked out when the function is made. It is worked out each time the function is called.
+
+```text
+set [double] to (function ((input (1)) * (2)))
+```
+
+**input (1)** stands for the first value the function is called with, **input (2)** for the second, and so on. An input that was not given is empty.
+
+Something typed straight into the slot makes a function that always gives that value.
+
+### From a custom block
+
+**function from my block [shout]** makes a function that calls one of the sprite's own custom blocks. The function's inputs become the custom block's inputs, and it gives back what the custom block returns.
+
+### From other functions
+
+| Block                                 | Makes a function that                                                 |
+| ------------------------------------- | --------------------------------------------------------------------- |
+| `(function) with first input (value)` | Calls the function with that value first, followed by its own inputs. |
+| `(first) then (second)`               | Calls the first function and passes what it returns to the second.    |
+
+```text
+set [add ten] to ((function ((input (1)) + (input (2)))) with first input (10))
+say (call (add ten) with (5))
+```
+
+That says 15.
+
+## Calling a function
+
+| Block                          | What it does                                                |
+| ------------------------------ | ----------------------------------------------------------- |
+| `call (function)`              | Calls the function and gives what it returned.              |
+| `call (function) with (a)`     | The same, with one input.                                   |
+| `call (function) with (a) (b)` | The same, with two inputs.                                  |
+| `run (function)`               | Calls the function and takes no notice of what it returned. |
+| `run (function) with (a)`      | The same, with one input.                                   |
+
+For more than two inputs, fill in the first ones with **with first input**.
+
+Calling something that is not a function does nothing and gives an empty value. **(value) is a function?** tells you beforehand.
+
+If the function waits, the block that called it waits for it.
+
+## Where a function runs
+
+A function remembers the sprite, clone or [instance](./classes) that made it, and runs there. The variables it reads are that one's, as they are at the moment of the call, and motion and looks blocks in it act on that one too.
+
+So a function can be made in one sprite, kept in a variable for all sprites, and called from another. It still works with the sprite that made it. If that was a clone or an instance and it has been deleted, the function does nothing.
+
+:::warning
+Inside **function ( )**, the inputs of a custom block around it are not available. They read as `0`. To use one, pass it in with **with first input**:
+
+```text
+define make adder (n)
+return ((function ((input (1)) + (input (2)))) with first input (n))
+```
+
+:::
+
+## Functions and lists
+
+These blocks call a function once for each item of a list, in order. The function is called with the item as its first input and the item's position as its second.
+
+| Block                                                         | What it does                                                   |
+| ------------------------------------------------------------- | -------------------------------------------------------------- |
+| `replace each item of [list] with (function) of it`           | Replaces every item with what the function returns for it.     |
+| `keep the items of [list] where (function)`                   | Removes the items for which the function does not return true. |
+| `for each item of [list] run (function)`                      | Calls the function for every item.                             |
+| `combine the items of [list] with (function) starting at (0)` | Folds the list into one value, as described below.             |
+
+**combine** starts with the value you give it. For each item it calls the function with the value so far, the item and the item's position, and what the function returns becomes the value so far. The block gives the last one.
+
+```text
+combine the items of [prices] with (function ((input (1)) + (input (2)))) starting at (0)
+```
+
+That is the sum of the list.
+
+The blocks work on a copy of the list and put the result back at the end, so a function that changes the list while they run does not confuse them.
+
+## Functions as values
+
+A function is a [reference value](./references). As text it reads as its label, such as `function #3`, and it is saved as that text.
+
+With the [Types](./types) extension, `function` is a type. A variable or custom block input called `on done: function` holds a function or nothing.

@@ -6,6 +6,11 @@ export default defineConfig({
   // The docs are published next to the editor on the same GitHub Pages site, under
   // /docs/ (see .github/workflows/deploy.yml). Keep the two in step.
   base: "/docs/",
+  // Makes the URLs in sitemap.xml absolute, which the sitemap format requires. The
+  // sitemap leaves the base out of page paths, so it is part of this URL.
+  sitemap: {
+    siteUrl: "https://astroblocks.hermits.cc/docs",
+  },
   outDir: "build",
   lang: "en",
   title: "AstroBlocks",

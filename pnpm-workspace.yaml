@@ -28,3 +28,12 @@ overrides:
   # which throws "ReadableStream is not defined" under jest's jsdom environment.
   # This is the version the packages' own lockfiles had resolved to.
   cheerio: 1.0.0-rc.12
+
+packageExtensions:
+  # url-loader hands assets over its size limit to file-loader, which it lists only as
+  # an optional "*" peer. pnpm fills that peer with whatever file-loader the workspace
+  # happens to have, so adding an unrelated package swapped 6.x for 4.x and changed the
+  # editor's asset output. A real dependency pins it to the version it had.
+  url-loader:
+    dependencies:
+      file-loader: 6.2.0

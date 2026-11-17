@@ -28,4 +28,10 @@ A project can only load extensions from [extensions.turbowarp.org](https://exten
 
 ## Developer mode
 
-With `--dev`, the server also accepts a new project at `/_astro_devServer_updateProj` and restarts it in place. Only requests sent from the AstroBlocks editor's own address are accepted.
+With `--dev`, the server also accepts a new project at `/_astro_devServer_updateProj` and restarts it in place. The new project keeps any permissions you already granted.
+
+The server only takes a project when the request's `Origin` header is the AstroBlocks editor's address. Browsers set that header themselves, so other websites can't swap your project, but any other program can send whatever `Origin` it likes. The server listens on every network interface, so anyone who can reach the port can replace the running project.
+
+:::danger
+Only use `--dev` on your own machine, on a network you trust, and with a firewall that keeps the port private. Never combine it with file or network permissions on a server other people can reach.
+:::

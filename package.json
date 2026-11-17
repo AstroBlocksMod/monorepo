@@ -1,7 +1,7 @@
 {
   "name": "monorepo",
   "private": true,
-  "packageManager": "pnpm@11.21.0",
+  "packageManager": "pnpm@12.21.0",
   "scripts": {
     "build": "pnpm -r run build",
     "test": "pnpm -r run test",

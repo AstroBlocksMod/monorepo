@@ -468,8 +468,8 @@ importers:
         specifier: 5.0.0
         version: 5.0.0(react@16.2.0)
       react-string-replace:
-        specifier: ^0.4.4
-        version: 0.4.4
+        specifier: ^2.0.1
+        version: 2.0.1
       react-style-proptype:
         specifier: 3.2.2
         version: 3.2.2
@@ -8273,9 +8273,8 @@ packages:
       react-dom:
         optional: true
 
-  react-string-replace@0.4.4:
-    resolution: {integrity: sha512-FAMkhxmDpCsGTwTZg7p/2v+/GTmxAp73so3fbSvlAcBBX36ujiGRNEaM/1u+jiYQrArhns+7eE92g2pi5E5FUA==}
-    engines: {node: '>=0.12.0'}
+  react-string-replace@2.0.1:
+    resolution: {integrity: sha512-J7y/IxZkwhOgCexu6GtkNH2FIa9f/z6ykvK1YXS8VLIdvcP8Vyx3LAUFsfIFvq3aQbmin2d+clFR1J50LnR2yA==}
 
   react-style-proptype@3.2.2:
     resolution: {integrity: sha512-ywYLSjNkxKHiZOqNlso9PZByNEY+FTyh3C+7uuziK0xFXu9xzdyfHwg4S9iyiRRoPCR4k2LqaBBsWVmSBwCWYQ==}
@@ -21296,9 +21295,7 @@ snapshots:
     optionalDependencies:
       react-dom: 19.3.1(react@19.3.1)
 
-  react-string-replace@0.4.4:
-    dependencies:
-      lodash: 4.18.1
+  react-string-replace@2.0.1: {}
 
   react-style-proptype@3.2.2:
     dependencies:

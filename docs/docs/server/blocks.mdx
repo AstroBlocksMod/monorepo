@@ -24,7 +24,9 @@ A script handles one request at a time. If a request comes in while the script f
 | `set headers to [HEADERS]` | Sets extra response headers, written as a JSON object such as `{"Cache-Control": "no-store"}`. Text that is not valid JSON is ignored. |
 | `return content [CONTENT]` | Sends the response and stops the script.                                                                                               |
 
-Set the format, status and headers before `return content`. A request gets exactly one response, so blocks after `return content` never run.
+Set the format, status and headers before `return content`. A request gets exactly one response, so once it is sent the script stops and blocks after `return content` don't run.
+
+Inside a custom block, `return content` sends the response and stops only that custom block. The script that used it carries on with its next block, but any further `return content` for the same request does nothing.
 
 ## Reading the request
 

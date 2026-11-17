@@ -41,8 +41,9 @@ To build a single package along with its workspace dependencies, use
 
 1. Branch from `main`.
 2. Make your change, and add tests where the package has a suite to add them to.
-3. Run `pnpm lint` and `pnpm test` for the packages you touched. CI runs the
-   same scripts per package, listed in [`workflows/ci.yml`](workflows/ci.yml).
+3. Run `pnpm lint` and `pnpm test` for the packages you touched. For `docs`,
+   run `check-format`, `typecheck` and `build` instead. CI runs the same scripts
+   per package, listed in [`workflows/ci.yml`](workflows/ci.yml).
 4. If the change is something users see, update the docs site to match.
 5. Open a pull request against `main` and fill in the template.
 

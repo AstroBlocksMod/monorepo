@@ -12,7 +12,10 @@ Server mode runs from a copy of the repository. You need [Node.js](https://nodej
 git clone https://github.com/AstroBlocksMod/monorepo.git
 cd monorepo
 pnpm install
+pnpm --filter @turbowarp/scratch-storage run build
 ```
+
+The last step builds the asset loader the server uses. It only needs to run once, and again after you pull changes to `packages/scratch-storage`.
 
 ## Making a project
 

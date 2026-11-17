@@ -38,6 +38,32 @@ jobs:
           fi
           exit "$status"
 
+  # One Prettier run for the whole repo (prettier.config.mjs). It also runs
+  # packages/extensions' own check-format, so that is not in the matrix below.
+  format:
+    name: format
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+
+      - name: Install Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check formatting
+        run: pnpm run check-format
+
   package:
     name: ${{ matrix.name }}
     runs-on: ubuntu-latest
@@ -47,7 +73,7 @@ jobs:
         include:
           - name: extensions
             filter: "@turbowarp/extensions"
-            scripts: validate lint check-format build
+            scripts: validate lint build
           - name: scratch-blocks
             filter: scratch-blocks
             scripts: test:lint build

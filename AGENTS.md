@@ -42,7 +42,7 @@ graph LR
 
 `scratch-gui` resolves `scratch-vm`, `scratch-render` and `scratch-paint` from their `src/` directories, so edits there show up on reload. `scratch-blocks` and `scratch-storage` are consumed from their build output: rebuild them (`pnpm --filter scratch-blocks run build`) after changing either.
 
-Outside `packages/`: `.github/workflows/` (CI, deploy, upstream sync), `.github/scripts/` (the sync scripts), `.github/upstream/` (sync state), `.github/CONTRIBUTING.md` (setup for humans; keep it in step with this file).
+Outside `packages/`: `.github/workflows/` (CI, deploy, upstream sync), `.github/scripts/` (the sync scripts), `.github/upstream/` (sync state), `.github/CONTRIBUTING.md` (setup for humans; keep it in step with this file), `prettier.config.mjs` and `.prettierignore` (the one Prettier setup, see Code Quality).
 
 ## Working with upstream (IMPORTANT)
 
@@ -50,7 +50,7 @@ Every package is merged with TurboWarp weekly by `.github/workflows/upstream-syn
 
 - Keep changes to upstream files small and local. Prefer adding a new file (a new extension, a new module, a new component) and hooking it in with a few lines over rewriting upstream code in place.
 - Mark AstroBlocks changes inside upstream files with an `// astro:` comment that says what was changed and why, as `scratch-vm` already does. It makes sync conflicts quick to resolve and shows what is ours.
-- Files deleted from the forks on purpose (upstream lockfiles, upstream CI under each package's `.github/`, per-package `.nvmrc`, `webpack.config.js`) stay deleted. Do not bring them back. The sync script keeps them deleted when upstream touches them.
+- Files deleted from the forks on purpose (upstream lockfiles, upstream CI under each package's `.github/`, per-package `.nvmrc`, `webpack.config.js`, `packages/extensions/.prettierrc.json`) stay deleted. Do not bring them back. The sync script keeps them deleted when upstream touches them.
 - Do not hand-edit `.github/upstream/<package>` except to delete an `unresolved=` line once that conflict is fixed. CI fails while any `unresolved=` line or conflict marker remains.
 - Sync PRs carry the `upstream-sync` label, which `.coderabbit.yaml` uses to skip review. Their title wording ("with TurboWarp/") is also relied on; see the comments in the workflow before changing either.
 - A bug that is also in TurboWarp is best fixed upstream. If it has to be fixed here first, keep the fix minimal so it merges cleanly once upstream fixes it too.
@@ -69,7 +69,7 @@ Each package keeps its upstream license; do not relicense files. Code moved betw
 ## Building and testing
 
 - Node v24 (`.nvmrc`), pnpm at the version in the root `package.json` (`packageManager`), and Python 3 for `scratch-blocks`.
-- `pnpm install`, then `pnpm start` for the editor. `pnpm build`, `pnpm test` and `pnpm lint` run across every package; `pnpm --filter "<pkg>..." run build` builds one package and its workspace dependencies.
+- `pnpm install`, then `pnpm start` for the editor. `pnpm build`, `pnpm test` and `pnpm lint` run across every package, and `pnpm format` / `pnpm check-format` run Prettier from the root; `pnpm --filter "<pkg>..." run build` builds one package and its workspace dependencies.
 - Script names differ per package (`lint` vs `test:lint`, `tap` vs `test`). The matrix in `.github/workflows/ci.yml` lists exactly what CI runs for each package; run those same scripts for every package you touched before calling a change done.
 - `scratch-render`'s integration tests load `scratch-vm`'s built bundle, so build `scratch-vm` first. `scratch-render` must not depend on `scratch-vm` (that cycle broke builds before).
 - Add tests where the package has a suite for them. New blocks in `scratch-vm` get a test under `test/unit/` or `test/integration/`.
@@ -97,7 +97,8 @@ If your harness has dedicated search or file tools that already wrap these, thos
 
 ## Code Quality
 
-- Follow the lint and style rules of the package you are in; they differ between packages (ESLint configs in each, Prettier in `packages/extensions`). Lint must pass with no new warnings.
+- Follow the lint and style rules of the package you are in; they differ between packages (ESLint configs in each). Lint must pass with no new warnings.
+- Prettier is configured once, in the root `prettier.config.mjs`, with `@prettier/plugin-oxc` as the JavaScript parser. It formats the root files, `.github/` and `packages/extensions` (the only package upstream formats with Prettier). Run `pnpm format` before committing; CI runs `pnpm check-format`. Do not add a Prettier config inside a package: Prettier uses the nearest one, so it would replace the root config instead of extending it. The other packages are ignored in `.prettierignore` because reformatting upstream code would make every sync conflict.
 - Match the surrounding code. These are upstream codebases with their own conventions, and a file that reads like upstream merges more cleanly than one restyled to taste. New files that are entirely ours may use modern JavaScript the package's build supports.
 - No crashes on bad input. A malformed project or a bad server request is a reported error, not an exception that takes down the editor or the server.
 

@@ -556,13 +556,11 @@
       const item = Cast.toNumber(args.ITEM);
 
       // Cache the last split
-      if (
-        !(
-          splitCache &&
-          splitCache.string === string &&
-          splitCache.split === split
-        )
-      ) {
+      if (!(
+        splitCache &&
+        splitCache.string === string &&
+        splitCache.split === split
+      )) {
         const regex = this._caseInsensitiveRegex(split);
 
         splitCache = {
@@ -642,14 +640,12 @@
         const item = Cast.toNumber(args.ITEM);
 
         // Cache the last matched string
-        if (
-          !(
-            matchCache &&
-            matchCache.string === string &&
-            matchCache.regex === uncleanRegex &&
-            matchCache.flags === flags
-          )
-        ) {
+        if (!(
+          matchCache &&
+          matchCache.string === string &&
+          matchCache.regex === uncleanRegex &&
+          matchCache.flags === flags
+        )) {
           const newFlags = flags.includes("g") ? flags : flags + "g";
           const regex = new RegExp(uncleanRegex, newFlags);
 
@@ -674,14 +670,12 @@
         const flags = Cast.toString(args.FLAGS);
 
         // Cache the last matched string
-        if (
-          !(
-            matchCache &&
-            matchCache.string === string &&
-            matchCache.regex === uncleanRegex &&
-            matchCache.flags === flags
-          )
-        ) {
+        if (!(
+          matchCache &&
+          matchCache.string === string &&
+          matchCache.regex === uncleanRegex &&
+          matchCache.flags === flags
+        )) {
           const newFlags = flags.includes("g") ? flags : flags + "g";
           const regex = new RegExp(uncleanRegex, newFlags);
 

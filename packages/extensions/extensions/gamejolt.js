@@ -106,19 +106,19 @@
       }
       // eslint-disable-next-line no-redeclare
       for (var c = 0; c < b.length * 8; c += 8) {
-        a[c >> 5] |= (b.charCodeAt(c / 8) & 255) << c % 32;
+        a[c >> 5] |= (b.charCodeAt(c / 8) & 255) << (c % 32);
       }
       return a;
     }
     function binl2rstr(b) {
       var a = "";
       for (var c = 0; c < b.length * 32; c += 8) {
-        a += String.fromCharCode((b[c >> 5] >>> c % 32) & 255);
+        a += String.fromCharCode((b[c >> 5] >>> (c % 32)) & 255);
       }
       return a;
     }
     function binl_md5(p, k) {
-      p[k >> 5] |= 128 << k % 32;
+      p[k >> 5] |= 128 << (k % 32);
       p[(((k + 64) >>> 9) << 4) + 14] = k;
       var o = 1732584193;
       var n = -271733879;

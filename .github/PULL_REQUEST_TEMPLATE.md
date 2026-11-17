@@ -25,11 +25,13 @@ _Please show how you have added tests to cover your changes_
 _For editor-facing changes, check the combinations you tested (at least 2)_
 
 Desktop
-* [ ] Chrome
-* [ ] Firefox
-* [ ] Safari
-* [ ] Edge
+
+- [ ] Chrome
+- [ ] Firefox
+- [ ] Safari
+- [ ] Edge
 
 Tablet
-* [ ] iPad / Safari
-* [ ] Android / Chrome
+
+- [ ] iPad / Safari
+- [ ] Android / Chrome

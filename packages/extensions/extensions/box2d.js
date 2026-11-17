@@ -1951,7 +1951,7 @@
         __this.m_tree.Query(QueryCallback, fatAABB);
       }
       __this.m_moveBuffer.length = 0;
-      for (var i = 0; i < __this.m_pairCount; ) {
+      for (var i = 0; i < __this.m_pairCount;) {
         var primaryPair = __this.m_pairBuffer[i];
         var userDataA = __this.m_tree.GetUserData(primaryPair.proxyA);
         var userDataB = __this.m_tree.GetUserData(primaryPair.proxyB);
@@ -5141,7 +5141,7 @@
       var body1 = this;
       var body2 = this.m_world.CreateBody(this.GetDefinition());
       var prev;
-      for (var f = body1.m_fixtureList; f; ) {
+      for (var f = body1.m_fixtureList; f;) {
         if (callback(f)) {
           var next = f.m_next;
           if (prev) {
@@ -5182,7 +5182,7 @@
     };
     b2Body.prototype.Merge = function (other) {
       var f;
-      for (f = other.m_fixtureList; f; ) {
+      for (f = other.m_fixtureList; f;) {
         var next = f.m_next;
         other.m_fixtureCount--;
         f.m_next = this.m_fixtureList;

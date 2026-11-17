@@ -1,3 +1,8 @@
+# Ignore rules for running Prettier from the repo root. Prettier only reads the
+# .prettierignore in the directory it runs from, so packages/extensions keeps its own
+# and is formatted by its own scripts (the root "format" script runs them).
+packages/
+
 .agents/skills/
 .claude/skills/
 pnpm-lock.yaml

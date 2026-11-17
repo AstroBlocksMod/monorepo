@@ -27,22 +27,31 @@ pnpm --filter scratch-blocks run build
 
 ## Workspace commands
 
-| Command | What it does |
-| --- | --- |
-| `pnpm build` | Build every package in dependency order |
-| `pnpm test` | Run every package's test suite |
-| `pnpm lint` | Lint every package |
-| `pnpm --filter <pkg> run <script>` | Run one package's script |
+| Command                            | What it does                                                        |
+| ---------------------------------- | ------------------------------------------------------------------- |
+| `pnpm build`                       | Build every package in dependency order                             |
+| `pnpm test`                        | Run every package's test suite                                      |
+| `pnpm lint`                        | Lint every package                                                  |
+| `pnpm format`                      | Format the repo's own files and `packages/extensions` with Prettier |
+| `pnpm check-format`                | Check that formatting without changing anything                     |
+| `pnpm --filter <pkg> run <script>` | Run one package's script                                            |
 
 To build a single package along with its workspace dependencies, use
 `pnpm --filter "<pkg>..." run build`.
+
+Prettier is set up once, in [`prettier.config.mjs`](../prettier.config.mjs) at the
+root, with [`@prettier/plugin-oxc`](https://www.npmjs.com/package/@prettier/plugin-oxc)
+for faster JavaScript parsing. It covers the root files, `.github/` and
+`packages/extensions`. The other packages are styled by their own ESLint configs,
+as upstream does, and are left out so that upstream syncs keep merging cleanly.
 
 ## Submitting changes
 
 1. Branch from `main`.
 2. Make your change, and add tests where the package has a suite to add them to.
-3. Run `pnpm lint` and `pnpm test` for the packages you touched. CI runs the
-   same scripts per package — see [`workflows/ci.yml`](workflows/ci.yml).
+3. Run `pnpm lint` and `pnpm test` for the packages you touched, and
+   `pnpm check-format`. CI runs the same scripts (see
+   [`workflows/ci.yml`](workflows/ci.yml)).
 4. Open a pull request against `main` and fill in the template.
 
 Pushes to `main` deploy the editor to GitHub Pages automatically via

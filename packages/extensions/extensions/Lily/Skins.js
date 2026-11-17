@@ -29,37 +29,38 @@
     if (!svgSkin) return;
     // To prevent a issue in the skin loading we will override the onload event ourself.
     const _onload = svgSkin._svgImage.onload;
-    svgSkin._svgImage.onload = /**
-     * @this {RenderWebGL.SVGSkin}
-     */ function (ev) {
-      // Reimplement the begining logic of SVGSkin to fix a loading error.
-      if (!this._size) throw "_size race";
-      if (this._size[0] === 0 || this._size[1] === 0) {
-        Object.getPrototypeOf(
-          vm.renderer.exports.SVGSkin
-        ).prototype.setEmptyImageData.call(this);
-        return;
-      }
-      const maxDimension = Math.ceil(Math.max(this._size[0], this._size[1]));
-      const rendererMax = this._renderer.maxTextureDimension;
-      let testScale = 2;
-      for (
-        testScale;
-        maxDimension * testScale <= rendererMax;
-        testScale = testScale * 2
-      ) {
-        this._maxTextureScale = testScale;
-      }
-      this.resetMIPs();
-      const rotationCenter = this.calculateRotationCenter();
-      if (!Array.isArray(rotationCenter)) throw "rotationCenter race";
-      if (!Array.isArray(this._rotationCenter)) {
-        // This can happen if the file is loaded too fast.
-        // We will handle creating this ourselves to prevent a swarm of errors.
-        this._rotationCenter = [0, 0];
-      }
-      return _onload.call(this, ev);
-    }.bind(svgSkin);
+    svgSkin._svgImage.onload =
+      /**
+       * @this {RenderWebGL.SVGSkin}
+       */ function (ev) {
+        // Reimplement the begining logic of SVGSkin to fix a loading error.
+        if (!this._size) throw "_size race";
+        if (this._size[0] === 0 || this._size[1] === 0) {
+          Object.getPrototypeOf(
+            vm.renderer.exports.SVGSkin
+          ).prototype.setEmptyImageData.call(this);
+          return;
+        }
+        const maxDimension = Math.ceil(Math.max(this._size[0], this._size[1]));
+        const rendererMax = this._renderer.maxTextureDimension;
+        let testScale = 2;
+        for (
+          testScale;
+          maxDimension * testScale <= rendererMax;
+          testScale = testScale * 2
+        ) {
+          this._maxTextureScale = testScale;
+        }
+        this.resetMIPs();
+        const rotationCenter = this.calculateRotationCenter();
+        if (!Array.isArray(rotationCenter)) throw "rotationCenter race";
+        if (!Array.isArray(this._rotationCenter)) {
+          // This can happen if the file is loaded too fast.
+          // We will handle creating this ourselves to prevent a swarm of errors.
+          this._rotationCenter = [0, 0];
+        }
+        return _onload.call(this, ev);
+      }.bind(svgSkin);
     return skinId;
   };
 

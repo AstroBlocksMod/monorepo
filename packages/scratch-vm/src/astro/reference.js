@@ -92,6 +92,15 @@ class Reference {
     }
 
     /**
+     * The name of the type this value has, as it would be written in a type annotation. Subclasses
+     * override this.
+     * @returns {string} A type name.
+     */
+    get typeName () {
+        return 'reference';
+    }
+
+    /**
      * Whether what this reference points at still exists. Subclasses override this.
      * @returns {boolean} False once the reference is dangling.
      */

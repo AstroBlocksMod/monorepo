@@ -197,6 +197,17 @@ class ProjectBuilder {
         this.stage = new TargetBuilder('Stage', true);
         this.sprites = [];
         this.extensions = [];
+        this.extensionStorage = {};
+    }
+
+    /**
+     * Turn type annotations on, the way a project saved with the Types extension has them.
+     * @returns {ProjectBuilder} this
+     */
+    withTypes () {
+        this.extensions.push('astroTypes');
+        this.extensionStorage.astroTypes = {annotations: true};
+        return this;
     }
 
     /**
@@ -214,6 +225,7 @@ class ProjectBuilder {
             targets: [this.stage, ...this.sprites].map((target, i) => target.toJSON(i)),
             monitors: [],
             extensions: this.extensions,
+            extensionStorage: this.extensionStorage,
             meta: {
                 semver: '3.0.0',
                 vm: '0.2.0',

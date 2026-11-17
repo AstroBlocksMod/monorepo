@@ -38,6 +38,11 @@ class Scratch3ProcedureBlocks {
                 threadStackFrame.params = null;
                 delete stackFrame.returnValue;
                 delete stackFrame.executed;
+                // astro: what a custom block returns is converted to the type in its name
+                // (see astro/types.js).
+                if (util.runtime.astroTypes) {
+                    return util.runtime.astroTypes.coerceReturnValue(args.mutation.proccode, returnValue);
+                }
                 return returnValue;
             }
             return;
@@ -79,6 +84,11 @@ class Scratch3ProcedureBlocks {
                 stackFrame.executed = true;
             }
             return result;
+        }
+
+        // astro: an input is converted to the type in its name (see astro/types.js).
+        if (util.runtime.astroTypes) {
+            util.runtime.astroTypes.coerceParameters(util.thread.getAllparams());
         }
 
         stackFrame.executed = true;

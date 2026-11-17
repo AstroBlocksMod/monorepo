@@ -17,6 +17,8 @@ const MathUtil = require('../util/math-util');
 const StringUtil = require('../util/string-util');
 const VariableUtil = require('../util/variable-util');
 const compress = require('./tw-compress-sb3');
+// astro: type annotations, see the file for what they are.
+const AstroTypes = require('../astro/types');
 
 const {loadCostume} = require('../import/load-costume.js');
 const {loadSound} = require('../import/load-sound.js');
@@ -681,6 +683,12 @@ const serialize = function (runtime, targetId, {allowOptimization = true} = {}) 
     const obj = Object.create(null);
     // Create extension set to hold extension ids found while serializing targets
     const extensions = new Set();
+
+    // astro: type annotations being on is part of what a project means, whether or not any block of
+    // the Types extension is in it, so a project that has them on always lists the extension.
+    if (runtime.astroTypes && !targetId) {
+        extensions.add(AstroTypes.EXTENSION_ID);
+    }
 
     const originalTargetsToSerialize = targetId ?
         [runtime.getTargetById(targetId)] :
@@ -1594,6 +1602,11 @@ const deserialize = async function (json, runtime, zip, isSingleSprite) {
             monitorObjects.map(monitorDesc => deserializeMonitor(monitorDesc, runtime, targets, extensions));
             if (Object.prototype.hasOwnProperty.call(json, 'extensionStorage')) {
                 runtime.extensionStorage = json.extensionStorage;
+                // astro: a project with type annotations on needs the Types extension even when it
+                // uses none of its blocks. It says so in the extension's storage (see serialize()).
+                if (AstroTypes.isOnIn(json.extensionStorage)) {
+                    extensions.extensionIDs.add(AstroTypes.EXTENSION_ID);
+                }
             }
             return targets;
         })

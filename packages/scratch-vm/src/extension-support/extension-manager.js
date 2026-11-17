@@ -30,7 +30,9 @@ const defaultBuiltinExtensions = {
     // tw: core extension
     tw: () => require('../extensions/tw'),
     // astro: Web server blocks.
-    server: () => require('../extensions/astro_server')
+    server: () => require('../extensions/astro_server'),
+    // astro: Gradual type annotations.
+    astroTypes: () => require('../extensions/astro_types')
 };
 
 /**

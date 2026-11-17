@@ -5,6 +5,11 @@
     "activeMatch": "/guide/"
   },
   {
+    "text": "Language",
+    "link": "/language/",
+    "activeMatch": "/language/"
+  },
+  {
     "text": "Server mode",
     "link": "/server/",
     "activeMatch": "/server/"

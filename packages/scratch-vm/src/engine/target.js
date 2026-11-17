@@ -277,6 +277,10 @@ class Target extends EventEmitter {
                 this.runtime.ioDevices.cloud.requestCreateVariable(newVariable);
             }
             this.variables[id] = newVariable;
+            // astro: a variable enforces the type in its name (see astro/types.js).
+            if (this.runtime && this.runtime.astroTypes) {
+                this.runtime.astroTypes.applyToVariable(this, id);
+            }
         }
     }
 
@@ -325,6 +329,11 @@ class Target extends EventEmitter {
                 if (this.runtime) {
                     if (variable.isCloud && this.isStage) {
                         this.runtime.ioDevices.cloud.requestRenameVariable(oldName, newName);
+                    }
+
+                    // astro: renaming is how a variable's type is changed (see astro/types.js).
+                    if (this.runtime.astroTypes) {
+                        this.runtime.astroTypes.variableWasRenamed(this, variable);
                     }
 
                     if (variable.type === Variable.SCALAR_TYPE) {

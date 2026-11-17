@@ -1,0 +1,85 @@
+# Types
+
+A type says what kind of value something holds. You write it at the end of a name, after a colon:
+
+```text
+score: number
+```
+
+A variable with that name only ever holds a number. Names without a type work the way they always have and can hold anything, so you can add types to a project a little at a time.
+
+## Turning annotations on
+
+Add the **Types** extension from the extension library. From then on, names that end in a type are enforced in that project.
+
+Whether annotations are on is saved with the project. The Types category has a button to turn them off and on again.
+
+Projects made in Scratch or TurboWarp never have annotations on unless you add the extension to them, so a variable that happens to be called `time: number` in an old project keeps working as before.
+
+## Where a type can go
+
+| On                   | Example                   | What is typed                 |
+| -------------------- | ------------------------- | ----------------------------- |
+| A variable           | `score: number`           | What the variable holds       |
+| A custom block input | `amount: number`          | What the input holds          |
+| A custom block       | `area of (w) (h): number` | What the custom block returns |
+
+To change a type, rename the thing. Renaming `score: number` to `score` makes it flexible again.
+
+Lists are not typed. A list called `names: text` is an ordinary list.
+
+## The types
+
+| Type      | Holds                              | Starts as |
+| --------- | ---------------------------------- | --------- |
+| `number`  | A number                           | `0`       |
+| `text`    | Text. You can also write `string`. | Empty     |
+| `boolean` | `true` or `false`                  | `false`   |
+
+Anything else after a colon is not a type, and the name stays flexible.
+
+## What a type does
+
+A typed variable, input or return value converts whatever it is given to its type. The conversion is the one Scratch already uses when a block needs a number, some text or a condition:
+
+| Given          | As `number` | As `text` | As `boolean` |
+| -------------- | ----------- | --------- | ------------ |
+| `12`           | `12`        | `12`      | `true`       |
+| `abc`          | `0`         | `abc`     | `true`       |
+| Nothing        | `0`         | Empty     | `false`      |
+| `true`         | `1`         | `true`    | `true`       |
+| `false` or `0` | `0`         | The same  | `false`      |
+
+Nothing ever fails or stops the project. A value of the wrong type is converted and the script carries on.
+
+This holds no matter what does the storing: a **set** block, a slider on the stage, an extension, or the value saved in the project file.
+
+:::tip
+An annotation never changes what a correct program does. If every value already has the type its name says, the project runs the same with annotations on or off. Annotations only step in when a value has the wrong type.
+:::
+
+### Custom blocks
+
+An input is converted when the custom block is called, and the return value is converted where the call is used. A custom block with a return type that stops without returning anything gives that type's starting value, so `area of (w) (h): number` gives `0`.
+
+## Blocks
+
+The Types category has three blocks.
+
+| Block                    | What it does                                                       |
+| ------------------------ | ------------------------------------------------------------------ |
+| `(value) as [number]`    | Converts a value to a type, using the table above.                 |
+| `(value) is a [number]?` | Checks whether a value already is of a type.                       |
+| `type of (value)`        | Gives the name of the value's type: `number`, `text` or `boolean`. |
+
+Text that reads as a number counts as a number here, as it does everywhere in Scratch. `12 is a number?` is true whether the 12 was typed into a block or worked out by one.
+
+## Speed
+
+The compiler knows a typed value needs no conversion. `(score: number) * 2` is compiled to a plain multiplication, where an untyped `(score) * 2` first has to turn `score` into a number in case it is text.
+
+## Opening typed projects elsewhere
+
+A project with annotations on lists the Types extension, so it needs AstroBlocks to open.
+
+If you turn annotations off and the project uses none of the three blocks above, it no longer needs the extension, and it opens in TurboWarp again. Because annotations never change what a correct program does, it also still runs the same there.

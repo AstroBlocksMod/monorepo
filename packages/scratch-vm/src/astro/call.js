@@ -239,6 +239,12 @@ const callProcedure = (target, procedureCode, args, util) => {
         values: names.map((_name, i) => (i < args.length ? args[i] : defaults[i])),
         value: ''
     };
+    // Inputs and the return value are converted to their annotated types, as for any other call.
+    const types = runtime.astroTypes;
+    if (types) {
+        types.coerceArguments(names, call.values);
+    }
+    const convertResult = value => (types ? types.coerceReturnValue(procedureCode, value) : value);
 
     const thread = new Thread(definitionId);
     thread.target = target;
@@ -266,7 +272,11 @@ const callProcedure = (target, procedureCode, args, util) => {
         thread.pushStack(definitionId);
     }
 
-    return runThread(thread, call, util);
+    const result = runThread(thread, call, util);
+    if (result && typeof result.then === 'function') {
+        return result.then(convertResult);
+    }
+    return convertResult(result);
 };
 
 module.exports = {

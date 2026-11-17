@@ -124,7 +124,15 @@ class TypeState {
      * @returns {InputType}
      */
     getVariableType (variable) {
-        return this.variables[variable.id] ?? InputType.ANY;
+        const known = this.variables[variable.id] ?? InputType.ANY;
+        // astro: an annotated variable only ever holds its type (see astro/types.js), whatever other
+        // scripts did to it in the meantime. A type the compiler knows nothing about says so with ANY.
+        if (variable.astroType) {
+            const declared = variable.astroType.inputType;
+            if (declared === InputType.ANY) return InputType.ANY;
+            return (known & declared) || declared;
+        }
+        return known;
     }
 }
 

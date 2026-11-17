@@ -15,6 +15,8 @@ const {
     IntermediateRepresentation
 } = require('./intermediate');
 const oldCompilerCompatiblity = require('./old-compiler-compatibility.js');
+// astro: type annotations, see the file for what they are.
+const AstroTypes = require('../astro/types');
 
 /**
  * @fileoverview Generate intermediate representations from Scratch blocks.
@@ -237,7 +239,8 @@ class ScriptTreeGenerator {
             if (index === -1) {
                 return this.createConstantInput(0);
             }
-            return new IntermediateInput(InputOpcode.PROCEDURE_ARGUMENT, InputType.ANY, {index});
+            // astro: an input with a type in its name is known to hold that type.
+            return new IntermediateInput(InputOpcode.PROCEDURE_ARGUMENT, AstroTypes.inputTypeOf(this.runtime, name), {index});
         }
         case 'argument_reporter_boolean': {
             // see argument_reporter_string_number above
@@ -249,7 +252,8 @@ class ScriptTreeGenerator {
                 }
                 return this.createConstantInput(0);
             }
-            return new IntermediateInput(InputOpcode.PROCEDURE_ARGUMENT, InputType.ANY, {index});
+            // astro: an input with a type in its name is known to hold that type.
+            return new IntermediateInput(InputOpcode.PROCEDURE_ARGUMENT, AstroTypes.inputTypeOf(this.runtime, name), {index});
         }
 
         case 'data_variable':
@@ -469,7 +473,15 @@ class ScriptTreeGenerator {
 
         case 'procedures_call': {
             const procedureInfo = this.getProcedureInfo(block);
-            return new IntermediateInput(procedureInfo.opcode, InputType.ANY, procedureInfo.inputs, procedureInfo.yields);
+            const call = new IntermediateInput(procedureInfo.opcode, InputType.ANY, procedureInfo.inputs, procedureInfo.yields);
+            // astro: what a custom block returns is converted to the type in its name.
+            if (this.runtime.astroTypes && procedureInfo.opcode === InputOpcode.PROCEDURE_CALL) {
+                const returnType = this.runtime.astroTypes.returnType(block.mutation.proccode);
+                const converted = AstroTypes.convertInput(returnType, call, this.script);
+                converted.yields = converted.yields || call.yields;
+                return converted;
+            }
+            return call;
         }
 
         case 'sensing_answer':
@@ -712,10 +724,11 @@ class ScriptTreeGenerator {
             const variable = this.descendVariable(block, 'VARIABLE', SCALAR_TYPE);
             return new IntermediateStackBlock(StackOpcode.VAR_SET, {
                 variable,
-                value: new IntermediateInput(InputOpcode.OP_ADD, InputType.NUMBER_OR_NAN, {
+                // astro: converted to the variable's type, as in data_setvariableto below.
+                value: AstroTypes.castInput(variable.astroType, new IntermediateInput(InputOpcode.OP_ADD, InputType.NUMBER_OR_NAN, {
                     left: new IntermediateInput(InputOpcode.VAR_GET, InputType.ANY, {variable}).toType(InputType.NUMBER),
                     right: this.descendInputOfBlock(block, 'VALUE').toType(InputType.NUMBER)
-                })
+                }))
             });
         }
         case 'data_deletealloflist':
@@ -754,11 +767,15 @@ class ScriptTreeGenerator {
                 index: this.descendInputOfBlock(block, 'INDEX'),
                 item: this.descendInputOfBlock(block, 'ITEM', true)
             });
-        case 'data_setvariableto':
+        case 'data_setvariableto': {
+            const variable = this.descendVariable(block, 'VARIABLE', SCALAR_TYPE);
             return new IntermediateStackBlock(StackOpcode.VAR_SET, {
-                variable: this.descendVariable(block, 'VARIABLE', SCALAR_TYPE),
-                value: this.descendInputOfBlock(block, 'VALUE', true)
+                variable,
+                // astro: a value stored in an annotated variable is converted to the variable's type.
+                // The variable does that itself as well. Doing it here tells the compiler the result.
+                value: AstroTypes.castInput(variable.astroType, this.descendInputOfBlock(block, 'VALUE', true))
             });
+        }
         case 'data_showlist':
             return new IntermediateStackBlock(StackOpcode.LIST_SHOW, {
                 list: this.descendVariable(block, 'LIST', LIST_TYPE)
@@ -1103,7 +1120,8 @@ class ScriptTreeGenerator {
             } else {
                 value = this.createConstantInput(paramDefaults[i], true);
             }
-            args.push(value);
+            // astro: an input is converted to the type in its name.
+            args.push(AstroTypes.convertInput(AstroTypes.typeOfName(this.runtime, paramNames[i]), value, this.script));
         }
 
         return {
@@ -1151,6 +1169,10 @@ class ScriptTreeGenerator {
         }
 
         const data = this._descendVariable(id, variable.value, type);
+        // astro: note the type in the variable's name, if type annotations are on.
+        if (this.runtime.astroTypes) {
+            this.runtime.astroTypes.annotateDescendedVariable(data, this.target, this.stage);
+        }
         // If variable ID was null, this might do some unnecessary updates, but that is a rare
         // edge case and it won't have any adverse effects anyways.
         this.variableCache[String(data.id)] = data;

@@ -547,6 +547,13 @@ class Runtime extends EventEmitter {
         this.extensionStorage = {};
 
         /**
+         * astro: What type annotations mean in this project. Null until the Types extension is loaded,
+         * and annotations do nothing until then.
+         * @type {?import('../astro/types')}
+         */
+        this.astroTypes = null;
+
+        /**
          * Total number of scratch-storage load() requests since the runtime was created or cleared.
          */
         this.totalAssetRequests = 0;
@@ -2365,6 +2372,10 @@ class Runtime extends EventEmitter {
         this.executableTargets.push(target);
         if (target.isStage && !this._stageTarget) {
             this._stageTarget = target;
+        }
+        // astro: the variables of a new sprite or clone enforce the types in their names.
+        if (this.astroTypes) {
+            this.astroTypes.applyToTarget(target);
         }
     }
 

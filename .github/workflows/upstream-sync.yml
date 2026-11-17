@@ -9,6 +9,9 @@ name: Upstream sync
 # token, with contents and pull-requests write access. The default GITHUB_TOKEN
 # is not used because PRs it opens do not trigger CI.
 #
+# Sync PRs get the "upstream-sync" label, which must exist in the repo.
+# .coderabbit.yaml skips PRs with that label.
+#
 # Sync branches (upstream-sync/<package>):
 # - Branches with only this workflow's commits are rebuilt whenever upstream or
 #   main moves, so the lockfile and conflicts stay current.
@@ -207,15 +210,23 @@ jobs:
             echo "Opened by the [upstream sync workflow]($RUN_URL). Any merge method works, squash included. To skip this upstream version, close the PR and keep the branch."
           } > "$body"
 
-          # Becomes the commit subject when the PR is squash-merged.
+          # Becomes the commit subject when the PR is squash-merged. Sourcery's
+          # dashboard skips titles containing "with TurboWarp/", so keep that
+          # wording if this changes. CodeRabbit goes by the label instead.
           title="chore: sync $PACKAGE with $REPO@${TIP:0:12}"
+          label=upstream-sync
 
           if [ "$PR_STATE" != OPEN ]; then
-            draft=()
-            [ "$CONFLICTS" != 0 ] && draft=(--draft)
-            gh pr create --base main --head "$BRANCH" --title "$title" --body-file "$body" "${draft[@]}"
+            # gh adds the label in a second request after creating the PR. Opening
+            # it as a draft keeps CodeRabbit (which skips drafts) from reviewing it
+            # before the label is on.
+            url=$(gh pr create --base main --head "$BRANCH" --title "$title" --body-file "$body" --label "$label" --draft)
+            echo "Opened $url"
+            if [ "$CONFLICTS" = 0 ]; then
+              gh pr ready "$url"
+            fi
           else
-            gh pr edit "$PR" --title "$title" --body-file "$body"
+            gh pr edit "$PR" --title "$title" --body-file "$body" --add-label "$label"
             is_draft=$(gh pr view "$PR" --json isDraft --jq .isDraft)
             if [ "$CONFLICTS" != 0 ] && [ "$is_draft" = false ]; then
               gh pr ready "$PR" --undo

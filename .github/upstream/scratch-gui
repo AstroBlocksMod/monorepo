@@ -2,4 +2,6 @@
 # Updated by .github/workflows/upstream-sync.yml.
 repo=TurboWarp/scratch-gui
 branch=develop
-commit=a2946eeb9a9dca7857d7ab53d766b54288c7a2ff
+commit=04f927e15076ed8cc38e449b356342e0258c5108
+# Resolve each file below, then delete its line. CI fails while any remain.
+unresolved=packages/scratch-gui/package.json

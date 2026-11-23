@@ -1,4 +1,4 @@
-const md5 = require('js-md5');
+const md5 = require('./md5');
 
 /**
  * The maximum length of a chunk before encoding it into base64.

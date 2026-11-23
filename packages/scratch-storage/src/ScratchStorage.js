@@ -1,5 +1,6 @@
 const BuiltinHelper = require('./BuiltinHelper');
 const WebHelper = require('./WebHelper');
+const md5 = require('./md5');
 
 const _Asset = require('./Asset');
 const _AssetType = require('./AssetType');
@@ -24,6 +25,15 @@ class ScratchStorage {
                 priority: -100
             }
         ];
+    }
+
+    /**
+     * Compute the MD5 hash of some data.
+     * @param {ArrayBuffer|ArrayBufferView|string|number[]} data Data to hash. Strings are encoded as UTF-8.
+     * @returns {string} Lowercase hex MD5 digest.
+     */
+    md5 (data) {
+        return md5(data);
     }
 
     /**

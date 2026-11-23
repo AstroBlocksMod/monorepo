@@ -1,4 +1,4 @@
-const md5 = require('js-md5');
+const md5 = require('./md5');
 
 const Asset = require('./Asset');
 const AssetType = require('./AssetType');

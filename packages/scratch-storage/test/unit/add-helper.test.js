@@ -1,3 +1,5 @@
+const {test} = require('node:test');
+const assert = require('node:assert/strict');
 const ScratchStorage = require('../../src');
 
 /**
@@ -36,13 +38,13 @@ class LoggingHelper {
 
 test('ScratchStorage constructor', () => {
     const storage = new ScratchStorage();
-    expect(storage).toBeInstanceOf(ScratchStorage);
+    assert.ok(storage instanceof ScratchStorage);
 });
 
 test('LoggingHelper constructor', () => {
     const storage = new ScratchStorage();
     const loggingHelper = new LoggingHelper(storage, 'constructor test', true, []);
-    expect(loggingHelper).toBeInstanceOf(LoggingHelper);
+    assert.ok(loggingHelper instanceof LoggingHelper);
 });
 
 test('addHelper', async () => {
@@ -65,15 +67,15 @@ test('addHelper', async () => {
     storage.addHelper(loggingHelpers[1], 0);
 
     // Did they all get added?
-    expect(storage._helpers.length).toBe(initialHelperCount + loggingHelpers.length);
+    assert.strictEqual(storage._helpers.length, initialHelperCount + loggingHelpers.length);
 
     // We shouldn't have any log entries yet
-    expect(logContainer).toStrictEqual([]);
+    assert.deepStrictEqual(logContainer, []);
 
     await storage.load(storage.AssetType.Project, '0');
 
     // Verify that all helpers were consulted, and in the correct order
-    expect(logContainer).toStrictEqual([
+    assert.deepStrictEqual(logContainer, [
         'first',
         'second',
         'third'

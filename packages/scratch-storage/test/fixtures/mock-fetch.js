@@ -1,6 +1,6 @@
 const TextEncoder = require('util').TextEncoder;
-const crossFetch = jest.requireActual('cross-fetch');
-const knownAssets = require('../fixtures/known-assets.js');
+const crossFetch = require('cross-fetch');
+const knownAssets = require('./known-assets.js');
 
 const Headers = crossFetch.Headers;
 const successText = 'successful response';
@@ -68,11 +68,7 @@ const mockFetch = (resource, options) => {
     return Promise.resolve(results);
 };
 
-// Mimic the cross-fetch module, but replace its `fetch` with `mockFetch` and add a few extras
 module.exports = {
-    ...crossFetch, // Headers, Request, Response, etc.
-    default: mockFetch,
-    fetch: mockFetch,
     mockFetch,
     successText
 };

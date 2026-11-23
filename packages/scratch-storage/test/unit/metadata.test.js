@@ -1,10 +1,21 @@
-jest.mock('cross-fetch');
+const {test, beforeEach, mock} = require('node:test');
+const assert = require('node:assert/strict');
+const path = require('path');
+const crossFetch = require('cross-fetch');
+const {mockFetch} = require('../fixtures/mock-fetch.js');
+mock.method(crossFetch, 'fetch', mockFetch);
+
+const srcDirectory = path.join(__dirname, '../../src/');
 
 beforeEach(() => {
     // reset the metadata container to ensure the tests don't interfere with each other
     // but this also means we need to `require` inside the tests
     /* eslint-disable global-require */
-    jest.resetModules();
+    for (const id of Object.keys(require.cache)) {
+        if (id.startsWith(srcDirectory)) {
+            delete require.cache[id];
+        }
+    }
 
     // temporary: pretend we're running in a browser and the URL has scratchMetadata=1
     // this is a hack to enable the metadata feature in tests
@@ -20,9 +31,9 @@ test('get without metadata', async () => {
     const mockFetchTestData = {};
     const result = await tool.get({url: '200', mockFetchTestData});
 
-    expect(result).toBeInstanceOf(Uint8Array);
-    expect(mockFetchTestData.headers).toBeTruthy();
-    expect(mockFetchTestData.headersCount).toBe(0);
+    assert.ok(result instanceof Uint8Array);
+    assert.ok(mockFetchTestData.headers);
+    assert.strictEqual(mockFetchTestData.headersCount, 0);
 });
 
 test('get with metadata', async () => {
@@ -38,11 +49,11 @@ test('get with metadata', async () => {
     const mockFetchTestData = {};
     const result = await tool.get({url: '200', mockFetchTestData});
 
-    expect(result).toBeInstanceOf(Uint8Array);
-    expect(mockFetchTestData.headers).toBeTruthy();
-    expect(mockFetchTestData.headersCount).toBe(2);
-    expect(mockFetchTestData.headers?.get(RequestMetadata.ProjectId)).toBe('1234');
-    expect(mockFetchTestData.headers?.get(RequestMetadata.RunId)).toBe('5678');
+    assert.ok(result instanceof Uint8Array);
+    assert.ok(mockFetchTestData.headers);
+    assert.strictEqual(mockFetchTestData.headersCount, 2);
+    assert.strictEqual(mockFetchTestData.headers?.get(RequestMetadata.ProjectId), '1234');
+    assert.strictEqual(mockFetchTestData.headers?.get(RequestMetadata.RunId), '5678');
 });
 
 test('send without metadata', async () => {
@@ -52,9 +63,9 @@ test('send without metadata', async () => {
     const mockFetchTestData = {};
     const result = await tool.send({url: '200', mockFetchTestData});
 
-    expect(typeof result).toBe('string');
-    expect(mockFetchTestData.headers).toBeTruthy();
-    expect(mockFetchTestData.headersCount).toBe(0);
+    assert.strictEqual(typeof result, 'string');
+    assert.ok(mockFetchTestData.headers);
+    assert.strictEqual(mockFetchTestData.headersCount, 0);
 });
 
 test('send with metadata', async () => {
@@ -70,11 +81,11 @@ test('send with metadata', async () => {
     const mockFetchTestData = {};
     const result = await tool.send({url: '200', mockFetchTestData});
 
-    expect(typeof result).toBe('string');
-    expect(mockFetchTestData.headers).toBeTruthy();
-    expect(mockFetchTestData.headersCount).toBe(2);
-    expect(mockFetchTestData.headers?.get(RequestMetadata.ProjectId)).toBe('4321');
-    expect(mockFetchTestData.headers?.get(RequestMetadata.RunId)).toBe('8765');
+    assert.strictEqual(typeof result, 'string');
+    assert.ok(mockFetchTestData.headers);
+    assert.strictEqual(mockFetchTestData.headersCount, 2);
+    assert.strictEqual(mockFetchTestData.headers?.get(RequestMetadata.ProjectId), '4321');
+    assert.strictEqual(mockFetchTestData.headers?.get(RequestMetadata.RunId), '8765');
 });
 
 test('selectively delete metadata', async () => {
@@ -91,23 +102,25 @@ test('selectively delete metadata', async () => {
     const mockFetchTestData = {};
 
     const result1 = await tool.send({url: '200', mockFetchTestData});
-    expect(typeof result1).toBe('string');
-    expect(mockFetchTestData.headers).toBeTruthy();
+    assert.strictEqual(typeof result1, 'string');
+    assert.ok(mockFetchTestData.headers);
 
-    expect(mockFetchTestData.headersCount).toBe(2);
-    expect(mockFetchTestData.headers?.get(RequestMetadata.ProjectId)).toBe('null'); // string "null" means it's present
-    expect(mockFetchTestData.headers?.get(RequestMetadata.RunId)).toBe('undefined');
+    assert.strictEqual(mockFetchTestData.headersCount, 2);
+    // string "null" means it's present
+    assert.strictEqual(mockFetchTestData.headers?.get(RequestMetadata.ProjectId), 'null');
+    assert.strictEqual(mockFetchTestData.headers?.get(RequestMetadata.RunId), 'undefined');
 
     // remove the Project ID from metadata
     unsetMetadata(RequestMetadata.ProjectId);
 
     const result2 = await tool.send({url: '200', mockFetchTestData});
-    expect(typeof result2).toBe('string');
-    expect(mockFetchTestData.headers).toBeTruthy();
+    assert.strictEqual(typeof result2, 'string');
+    assert.ok(mockFetchTestData.headers);
 
-    expect(mockFetchTestData.headersCount).toBe(1);
-    expect(mockFetchTestData.headers?.get(RequestMetadata.ProjectId)).toBeNull(); // value `null` means it's present
-    expect(mockFetchTestData.headers?.get(RequestMetadata.RunId)).toBe('undefined');
+    assert.strictEqual(mockFetchTestData.headersCount, 1);
+    // value `null` means it's present
+    assert.strictEqual(mockFetchTestData.headers?.get(RequestMetadata.ProjectId), null);
+    assert.strictEqual(mockFetchTestData.headers?.get(RequestMetadata.RunId), 'undefined');
 });
 
 test('metadata has case-insensitive keys', async () => {
@@ -123,7 +136,7 @@ test('metadata has case-insensitive keys', async () => {
     const mockFetchTestData = {};
     await tool.get({url: '200', mockFetchTestData});
 
-    expect(mockFetchTestData.headers).toBeTruthy();
-    expect(mockFetchTestData.headersCount).toBe(1);
-    expect(mockFetchTestData.headers?.get('foo')).toBe('2');
+    assert.ok(mockFetchTestData.headers);
+    assert.strictEqual(mockFetchTestData.headersCount, 1);
+    assert.strictEqual(mockFetchTestData.headers?.get('foo'), '2');
 });

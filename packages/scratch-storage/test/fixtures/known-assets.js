@@ -1,7 +1,9 @@
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
-const md5 = require('js-md5');
+const md5 = data => crypto.createHash('md5').update(data)
+    .digest('hex');
 
 const projects = [
     '117504922'

@@ -1,4 +1,9 @@
-const md5 = require('js-md5');
+const {test} = require('node:test');
+const assert = require('node:assert/strict');
+const crypto = require('crypto');
+
+const md5 = data => crypto.createHash('md5').update(data)
+    .digest('hex');
 
 const ScratchStorage = require('../../dist/node/scratch-storage');
 
@@ -25,7 +30,7 @@ const getDefaultAssetIds = (storage, defaultAssetTypes) => {
 
 test('constructor', () => {
     const storage = new ScratchStorage();
-    expect(storage).toBeInstanceOf(ScratchStorage);
+    assert.ok(storage instanceof ScratchStorage);
 });
 
 test('getDefaultAssetId', () => {
@@ -34,7 +39,7 @@ test('getDefaultAssetId', () => {
     const defaultIds = getDefaultAssetIds(storage, defaultAssetTypes);
     for (const assetType of defaultAssetTypes) {
         const id = defaultIds[assetType.name];
-        expect(typeof id).toBe('string');
+        assert.strictEqual(typeof id, 'string');
     }
 });
 
@@ -45,18 +50,18 @@ test('load', () => {
 
     const promises = [];
     const checkAsset = (assetType, id, asset) => {
-        expect(asset).toBeInstanceOf(storage.Asset);
-        expect(asset.assetId).toStrictEqual(id);
-        expect(asset.assetType).toStrictEqual(assetType);
-        expect(asset.data.length).toBeTruthy();
-        expect(asset.data.length).toBe(knownSizes[id]);
-        expect(md5(asset.data)).toBe(id);
+        assert.ok(asset instanceof storage.Asset);
+        assert.deepStrictEqual(asset.assetId, id);
+        assert.deepStrictEqual(asset.assetType, assetType);
+        assert.ok(asset.data.length);
+        assert.strictEqual(asset.data.length, knownSizes[id]);
+        assert.strictEqual(md5(asset.data), id);
     };
     for (const assetType of defaultAssetTypes) {
         const id = defaultIds[assetType.name];
 
         const promise = storage.load(assetType, id);
-        expect(promise).toBeInstanceOf(Promise);
+        assert.ok(promise instanceof Promise);
 
         const checkedPromise = promise.then(asset => checkAsset(assetType, id, asset));
 

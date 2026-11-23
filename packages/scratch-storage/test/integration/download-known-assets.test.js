@@ -1,10 +1,19 @@
-const md5 = require('js-md5');
+const {test, mock} = require('node:test');
+const assert = require('node:assert/strict');
+const crypto = require('crypto');
+
+const md5 = data => crypto.createHash('md5').update(data)
+    .digest('hex');
+
+const crossFetch = require('cross-fetch');
+const {mockFetch} = require('../fixtures/mock-fetch.js');
+mock.method(crossFetch, 'fetch', mockFetch);
 
 const ScratchStorage = require('../../src/index.js');
 
 test('constructor', () => {
     const storage = new ScratchStorage();
-    expect(storage).toBeInstanceOf(ScratchStorage);
+    assert.ok(storage instanceof ScratchStorage);
 });
 
 /**
@@ -84,7 +93,7 @@ const addWebStores = storage => {
 test('addWebStore', () => {
     const storage = new ScratchStorage();
     addWebStores(storage);
-    expect(storage.webHelper.stores.length).toBe(2);
+    assert.strictEqual(storage.webHelper.stores.length, 2);
 });
 
 test('load', () => {
@@ -112,7 +121,7 @@ test('load', () => {
                         e.flat(),
                         `failed to load ${assetInfo.type.name} asset with id=${assetInfo.id}`
                     );
-                    // Jest doesn't display AggregateError very well on its own
+                    // AggregateError doesn't display very well on its own
                     console.error(e);
                 } else if (!(e instanceof Error)) {
                     // storage.load can throw a status like 403 or 500 which isn't an Error.
@@ -123,17 +132,16 @@ test('load', () => {
 
                 throw e;
             });
-        expect(asset).toBeInstanceOf(storage.Asset);
-        expect(asset.assetId).toBe(assetInfo.id);
-        expect(asset.assetType).toBe(assetInfo.type);
-        expect(asset.data.length).toBeGreaterThan(0);
+        assert.ok(asset instanceof storage.Asset);
+        assert.strictEqual(asset.assetId, assetInfo.id);
+        assert.strictEqual(asset.assetType, assetInfo.type);
+        assert.ok(asset.data.length > 0);
 
         // Web assets should come back as clean
-        expect(asset.clean).toBeTruthy();
+        assert.ok(asset.clean);
 
         if (assetInfo.md5) {
-            // eslint-disable-next-line jest/no-conditional-expect
-            expect(md5(asset.data)).toBe(assetInfo.md5);
+            assert.strictEqual(md5(asset.data), assetInfo.md5);
         }
     });
 

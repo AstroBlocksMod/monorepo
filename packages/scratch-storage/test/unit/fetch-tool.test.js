@@ -1,20 +1,23 @@
+const {test, mock} = require('node:test');
+const assert = require('node:assert/strict');
 const TextDecoder = require('util').TextDecoder;
 
-jest.mock('cross-fetch');
-const mockFetch = require('cross-fetch');
+const crossFetch = require('cross-fetch');
+const mockFetch = require('../fixtures/mock-fetch.js');
+mock.method(crossFetch, 'fetch', mockFetch.mockFetch);
 const FetchTool = require('../../src/FetchTool.js');
 
 test('send success returns response.text()', async () => {
     const tool = new FetchTool();
 
     const result = await tool.send({url: '200'});
-    expect(result).toBe(mockFetch.successText);
+    assert.strictEqual(result, mockFetch.successText);
 });
 
 test('send failure returns response.status', async () => {
     const tool = new FetchTool();
 
-    const catcher = jest.fn();
+    const catcher = mock.fn();
 
     try {
         await tool.send({url: '500'});
@@ -22,7 +25,7 @@ test('send failure returns response.status', async () => {
         catcher(e);
     }
 
-    expect(catcher).toHaveBeenCalledWith(500);
+    assert.deepStrictEqual(catcher.mock.calls.map(call => call.arguments), [[500]]);
 });
 
 test('get success returns Uint8Array.body(response.arrayBuffer())', async () => {
@@ -32,19 +35,19 @@ test('get success returns Uint8Array.body(response.arrayBuffer())', async () => 
     const tool = new FetchTool();
 
     const result = await tool.get({url: '200'});
-    expect(decoder.decode(result)).toBe(mockFetch.successText);
+    assert.strictEqual(decoder.decode(result), mockFetch.successText);
 });
 
 test('get with 404 response returns null data', async () => {
     const tool = new FetchTool();
 
     const result = await tool.get({url: '404'});
-    expect(result).toBeNull();
+    assert.strictEqual(result, null);
 });
 
 test('get failure returns response.status', async () => {
     const tool = new FetchTool();
-    const catcher = jest.fn();
+    const catcher = mock.fn();
 
     try {
         await tool.get({url: '500'});
@@ -52,5 +55,5 @@ test('get failure returns response.status', async () => {
         catcher(e);
     }
 
-    expect(catcher).toHaveBeenCalledWith(500);
+    assert.deepStrictEqual(catcher.mock.calls.map(call => call.arguments), [[500]]);
 });

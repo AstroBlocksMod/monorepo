@@ -26,6 +26,7 @@
   "penplus",
   "Xeltalliv/simple3D",
   "Lily/Skins",
+  "SharkPool/Particle-Engine",
   "obviousAlexC/SensingPlus",
   "CubesterYT/KeySimulation",
   "Lily/ClonesPlus",
@@ -80,7 +81,7 @@
   "TheShovel/CanvasEffects",
   "Longboost/color_channels",
   "CST1229/zip",
-  "CST1229/images",
+  "CST1229/extendableblocks",
   "TheShovel/LZ-String",
   "0832/rxFS2",
   "NexusKitten/sgrab",
@@ -103,5 +104,7 @@
   "itchio",
   "gamejolt",
   "obviousAlexC/newgroundsIO",
+  "SamuelLouf/Wikipedia",
+  "LukeAnimationss/MoreRandomness",
   "Lily/McUtils" // McUtils should always be the last item.
 ]

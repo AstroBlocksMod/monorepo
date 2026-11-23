@@ -2,4 +2,4 @@
 # Updated by .github/workflows/upstream-sync.yml.
 repo=TurboWarp/scratch-render
 branch=develop
-commit=a67f7c9c07d459582c227d4fd3fae8f59d8fc9ce
+commit=655edeb5a7b107aa26fb02a3beb0bbcfb8c350ff

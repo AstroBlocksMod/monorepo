@@ -271,6 +271,10 @@ class RenderWebGL extends EventEmitter {
 
         this.on(RenderConstants.Events.NativeSizeChanged, this.onNativeSizeChanged);
 
+        gl.canvas.addEventListener('webglcontextlost', () => {
+            this.emit(RenderConstants.Events.ContextLost);
+        });
+
         this.setBackgroundColor(1, 1, 1);
         this.setStageSize(xLeft || -240, xRight || 240, yBottom || -180, yTop || 180);
         this.resize(this._nativeSize[0], this._nativeSize[1]);
@@ -828,9 +832,24 @@ class RenderWebGL extends EventEmitter {
         if (index < endIndex) {
             this._drawList.splice(index, 1);
             this._updateOffsets('delete', currentLayerGroup.groupIndex);
-        } else {
-            log.warn('Could not destroy drawable that could not be found in layer group.');
             return;
+        }
+
+        // Certain custom extensions, such as SharkPool Layer Control, thoroughly corrupt internal state
+        // by rearranging drawables outside the layer they ought to belong to. This breaks a lot of things
+        // in various ways. One of the things it breaks is the loop above where we try to find the drawable
+        // by checking where its layer starts and ends. The impact of this corruption is severe enough that
+        // it's best if we work around it.
+        index = this._drawList.indexOf(drawableID);
+        if (index === -1) {
+            log.warn('Could not destroy drawable that could not be found in draw list.');
+            return;
+        }
+        this._drawList.splice(index, 1);
+        for (const groupName of this._groupOrdering) {
+            if (this._layerGroups[groupName].drawListOffset > index) {
+                this._layerGroups[groupName].drawListOffset--;
+            }
         }
     }
 
@@ -2367,6 +2386,7 @@ class RenderWebGL extends EventEmitter {
      * SEURITY CONSIDERATIONS: It is the caller's responsibility to ensure that the @font-face
      * statements do not contain malicious styles.
      * @param {Record<string, string>} customFonts Maps full font families (with fallbacks) to @font-face statements.
+     * @returns {Promise<unknown>} Resolves when the fonts are ready to use. Never rejects.
      */
     setCustomFonts (customFonts) {
         this.customFonts = customFonts;
@@ -2393,10 +2413,9 @@ class RenderWebGL extends EventEmitter {
             typeof document.fonts.load === 'function'
         ) {
             const families = Object.keys(customFonts);
-            for (const family of families) {
-                document.fonts.load(`12px ${family}`);
-            }
+            return Promise.all(families.map(family => document.fonts.load(`12px ${family}`).catch(() => {})));
         }
+        return Promise.resolve();
     }
 }
 

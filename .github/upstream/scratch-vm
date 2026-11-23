@@ -2,4 +2,6 @@
 # Updated by .github/workflows/upstream-sync.yml.
 repo=TurboWarp/scratch-vm
 branch=develop
-commit=c4823421cb7c17d8d8a89878851ce1668c26a21f
+commit=e9a61c92e9acf60e812b4d8439b0568739176c7f
+# Resolve each file below, then delete its line. CI fails while any remain.
+unresolved=packages/scratch-vm/package.json
